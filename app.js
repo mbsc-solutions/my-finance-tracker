@@ -86,7 +86,6 @@ function addIncome(
         return;
     }
 
-
     transactions.push({
 
         id: Date.now(),
@@ -102,7 +101,6 @@ function addIncome(
         purpose: purpose.trim()
 
     });
-
 
     rebuildDataFromTransactions();
 
@@ -161,7 +159,9 @@ function addExpense(
     }
 
 
-    // Check available balance before adding
+    // --------------------------------------
+    // CHECK AVAILABLE ALLOCATION
+    // --------------------------------------
 
     rebuildDataFromTransactions();
 
@@ -175,11 +175,13 @@ function addExpense(
 
     }
 
+
     if (allocationType === "Emergency") {
 
         availableBalance = emergencyBalance;
 
     }
+
 
     if (allocationType === "Savings") {
 
@@ -188,7 +190,7 @@ function addExpense(
     }
 
 
-    if (amount > availableBalance) {
+    if (amount > availableBalance + 0.001) {
 
         alert(
 
@@ -203,6 +205,10 @@ function addExpense(
         return;
     }
 
+
+    // --------------------------------------
+    // ADD EXPENSE
+    // --------------------------------------
 
     transactions.push({
 
@@ -357,7 +363,7 @@ function payDebit(
     // PAYMENT CANNOT EXCEED DEBIT
     // --------------------------------------
 
-    if (amount > debitOutstanding) {
+    if (amount > debitOutstanding + 0.001) {
 
         alert(
 
@@ -376,7 +382,7 @@ function payDebit(
     // PAYMENT CANNOT EXCEED PPF
     // --------------------------------------
 
-    if (amount > ppfBalance) {
+    if (amount > ppfBalance + 0.001) {
 
         alert(
 
@@ -390,6 +396,10 @@ function payDebit(
         return;
     }
 
+
+    // --------------------------------------
+    // ADD DEBIT PAYMENT
+    // --------------------------------------
 
     transactions.push({
 
@@ -422,13 +432,16 @@ function payDebit(
 // ==========================================
 // REBUILD ALL DATA
 // ==========================================
-// This function recalculates everything
-// from transaction history.
-// This is important for Edit/Delete.
+// Everything is calculated again from
+// transaction history.
 // ==========================================
 
 function rebuildDataFromTransactions() {
 
+
+    // --------------------------------------
+    // RESET BALANCES
+    // --------------------------------------
 
     personalBalance = 0;
 
@@ -441,16 +454,26 @@ function rebuildDataFromTransactions() {
     jarBalance = 0;
 
 
+    // --------------------------------------
+    // RESET TOTALS
+    // --------------------------------------
+
+    totalIncome = 0;
+
     totalExpenses = 0;
 
     totalDebitPaid = 0;
 
 
+    // --------------------------------------
+    // RESET DEBIT
+    // --------------------------------------
+
     debitOutstanding = DEFAULT_DEBIT;
 
 
     // --------------------------------------
-    // PROCESS TRANSACTIONS IN ORDER
+    // PROCESS TRANSACTIONS
     // --------------------------------------
 
     transactions.forEach(transaction => {
@@ -460,31 +483,47 @@ function rebuildDataFromTransactions() {
             Number(transaction.amount) || 0;
 
 
-        // ----------------------------------
+        // ==================================
         // INCOME
-        // ----------------------------------
+        // ==================================
 
         if (transaction.type === "Income") {
+
+
+            // IMPORTANT:
+            // Total Income is actual income.
+            // Expenses will NOT reduce it.
+
+            totalIncome += amount;
+
+
+            // ----------------------------------
+            // ALLOCATION
+            // ----------------------------------
 
             personalBalance +=
                 amount *
                 allocation.Personal /
                 100;
 
+
             emergencyBalance +=
                 amount *
                 allocation.Emergency /
                 100;
+
 
             savingsBalance +=
                 amount *
                 allocation.Savings /
                 100;
 
+
             ppfBalance +=
                 amount *
                 allocation.PPF /
                 100;
+
 
             jarBalance +=
                 amount *
@@ -494,14 +533,19 @@ function rebuildDataFromTransactions() {
         }
 
 
-        // ----------------------------------
+        // ==================================
         // EXPENSE
-        // ----------------------------------
+        // ==================================
 
         if (transaction.type === "Expense") {
 
+
             totalExpenses += amount;
 
+
+            // ----------------------------------
+            // PERSONAL EXPENSE
+            // ----------------------------------
 
             if (
                 transaction.allocation === "Personal"
@@ -512,6 +556,10 @@ function rebuildDataFromTransactions() {
             }
 
 
+            // ----------------------------------
+            // EMERGENCY EXPENSE
+            // ----------------------------------
+
             if (
                 transaction.allocation === "Emergency"
             ) {
@@ -521,6 +569,10 @@ function rebuildDataFromTransactions() {
             }
 
 
+            // ----------------------------------
+            // SAVINGS EXPENSE
+            // ----------------------------------
+
             if (
                 transaction.allocation === "Savings"
             ) {
@@ -529,12 +581,17 @@ function rebuildDataFromTransactions() {
 
             }
 
+
+            // IMPORTANT:
+            // PPF and Jar are NOT reduced
+            // by normal expenses.
+
         }
 
 
-        // ----------------------------------
+        // ==================================
         // NEW DEBIT
-        // ----------------------------------
+        // ==================================
 
         if (transaction.type === "Debit") {
 
@@ -543,18 +600,26 @@ function rebuildDataFromTransactions() {
         }
 
 
-        // ----------------------------------
+        // ==================================
         // DEBIT PAYMENT
-        // ----------------------------------
+        // ==================================
 
         if (
-            transaction.type ===
-            "Debit Payment"
+            transaction.type === "Debit Payment"
         ) {
+
+
+            // Reduce outstanding debit
 
             debitOutstanding -= amount;
 
+
+            // Payment comes ONLY from PPF
+
             ppfBalance -= amount;
+
+
+            // Total debit payment
 
             totalDebitPaid += amount;
 
@@ -564,20 +629,46 @@ function rebuildDataFromTransactions() {
 
 
     // --------------------------------------
-    // TOTAL INCOME DISPLAY
-    // Personal + Emergency + Savings ONLY
+    // SMALL DECIMAL CORRECTION
     // --------------------------------------
 
-    totalIncome =
-        personalBalance +
-        emergencyBalance +
-        savingsBalance;
+    if (Math.abs(personalBalance) < 0.001) {
+
+        personalBalance = 0;
+
+    }
+
+    if (Math.abs(emergencyBalance) < 0.001) {
+
+        emergencyBalance = 0;
+
+    }
+
+    if (Math.abs(savingsBalance) < 0.001) {
+
+        savingsBalance = 0;
+
+    }
+
+    if (Math.abs(ppfBalance) < 0.001) {
+
+        ppfBalance = 0;
+
+    }
+
+    if (Math.abs(jarBalance) < 0.001) {
+
+        jarBalance = 0;
+
+    }
 
 }
 
 
 // ==========================================
 // AVAILABLE BALANCE
+// ==========================================
+// Only Personal + Emergency + Savings
 // ==========================================
 
 function getAvailableBalance() {
@@ -661,7 +752,8 @@ function updateDashboard() {
 
         debitElement.textContent =
             "₹" +
-            debitOutstanding.toFixed(2);
+            Math.max(0, debitOutstanding)
+                .toFixed(2);
 
     }
 
@@ -699,7 +791,8 @@ function updateDashboard() {
 
         personalElement.textContent =
             "₹" +
-            personalBalance.toFixed(2);
+            Math.max(0, personalBalance)
+                .toFixed(2);
 
     }
 
@@ -718,7 +811,8 @@ function updateDashboard() {
 
         emergencyElement.textContent =
             "₹" +
-            emergencyBalance.toFixed(2);
+            Math.max(0, emergencyBalance)
+                .toFixed(2);
 
     }
 
@@ -737,7 +831,8 @@ function updateDashboard() {
 
         savingsElement.textContent =
             "₹" +
-            savingsBalance.toFixed(2);
+            Math.max(0, savingsBalance)
+                .toFixed(2);
 
     }
 
@@ -756,7 +851,8 @@ function updateDashboard() {
 
         ppfElement.textContent =
             "₹" +
-            ppfBalance.toFixed(2);
+            Math.max(0, ppfBalance)
+                .toFixed(2);
 
     }
 
@@ -775,7 +871,8 @@ function updateDashboard() {
 
         jarElement.textContent =
             "₹" +
-            jarBalance.toFixed(2);
+            Math.max(0, jarBalance)
+                .toFixed(2);
 
     }
 
@@ -863,7 +960,7 @@ function displayTransactions() {
 
                         `<div>
                             <strong>Source:</strong>
-                            ${transaction.source}
+                            ${escapeHTML(transaction.source)}
                         </div>`;
 
                 }
@@ -879,7 +976,7 @@ function displayTransactions() {
 
                         `<div>
                             <strong>From:</strong>
-                            ${transaction.allocation}
+                            ${escapeHTML(transaction.allocation)}
                         </div>`;
 
                 }
@@ -895,7 +992,7 @@ function displayTransactions() {
 
                         `<div>
                             <strong>Person:</strong>
-                            ${transaction.person}
+                            ${escapeHTML(transaction.person)}
                         </div>`;
 
                 }
@@ -911,14 +1008,14 @@ function displayTransactions() {
 
                         `<div>
                             <strong>Due Date:</strong>
-                            ${transaction.dueDate}
+                            ${escapeHTML(transaction.dueDate)}
                         </div>`;
 
                 }
 
 
                 // ----------------------------------
-                // EDIT + DELETE BUTTONS
+                // EDIT + DELETE
                 // ----------------------------------
 
                 let actionButtons = `
@@ -932,6 +1029,7 @@ function displayTransactions() {
                             ✏️ Edit
 
                         </button>
+
 
                         <button
                             class="btn btn-danger btn-sm"
@@ -947,7 +1045,7 @@ function displayTransactions() {
 
 
                 // ----------------------------------
-                // PAY DEBIT BUTTON
+                // PAY DEBIT
                 // ----------------------------------
 
                 let payButton = "";
@@ -958,21 +1056,56 @@ function displayTransactions() {
                     debitOutstanding > 0
                 ) {
 
+                    const safePerson =
+                        escapeForAttribute(
+                            transaction.person || ""
+                        );
+
+
                     payButton = `
 
                         <div class="mt-2">
 
                             <button
                                 class="btn btn-primary btn-sm pay-btn"
-                                onclick="payDebitPrompt('${escapeForAttribute(transaction.person || "")}')">
+                                onclick="payDebitPrompt('${safePerson}')">
 
-                                Pay Debit
+                                💳 Pay Debit
 
                             </button>
 
                         </div>
 
                     `;
+
+                }
+
+
+                // ----------------------------------
+                // TYPE
+                // ----------------------------------
+
+                let typeClass = "";
+
+
+                if (transaction.type === "Income") {
+
+                    typeClass = "text-success";
+
+                }
+
+                else if (transaction.type === "Expense") {
+
+                    typeClass = "text-danger";
+
+                }
+
+                else if (
+                    transaction.type === "Debit" ||
+                    transaction.type === "Debit Payment"
+                ) {
+
+                    typeClass = "text-primary";
 
                 }
 
@@ -986,30 +1119,48 @@ function displayTransactions() {
                     <div class="transaction-item">
 
                         <div>
-                            <strong>
-                                ${transaction.type}
+
+                            <strong class="${typeClass}">
+
+                                ${escapeHTML(transaction.type)}
+
                             </strong>
+
                         </div>
 
+
                         <div>
+
                             ₹${Number(
                                 transaction.amount
                             ).toFixed(2)}
+
                         </div>
 
+
                         <div>
+
                             <strong>Date:</strong>
-                            ${transaction.date}
+                            ${escapeHTML(transaction.date)}
+
                         </div>
 
+
                         <div>
+
                             <strong>Purpose:</strong>
-                            ${transaction.purpose || "-"}
+                            ${escapeHTML(
+                                transaction.purpose || "-"
+                            )}
+
                         </div>
+
 
                         ${extraInfo}
 
+
                         ${payButton}
+
 
                         ${actionButtons}
 
@@ -1020,6 +1171,22 @@ function displayTransactions() {
             })
 
             .join("");
+
+}
+
+
+// ==========================================
+// ESCAPE HTML
+// ==========================================
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
@@ -1065,6 +1232,10 @@ function editTransaction(id) {
     // ======================================
 
     if (transaction.type === "Income") {
+
+
+        const oldTransaction =
+            { ...transaction };
 
 
         const amount =
@@ -1120,7 +1291,10 @@ function editTransaction(id) {
             );
 
 
-        if (source === null || !source.trim()) {
+        if (
+            source === null ||
+            !source.trim()
+        ) {
 
             return;
 
@@ -1134,7 +1308,10 @@ function editTransaction(id) {
             );
 
 
-        if (purpose === null || !purpose.trim()) {
+        if (
+            purpose === null ||
+            !purpose.trim()
+        ) {
 
             return;
 
@@ -1172,18 +1349,14 @@ function editTransaction(id) {
     if (transaction.type === "Expense") {
 
 
-        const oldAmount =
-            Number(transaction.amount);
-
-
-        const oldAllocation =
-            transaction.allocation;
+        const oldTransaction =
+            { ...transaction };
 
 
         const amount =
             prompt(
                 "Enter new Expense Amount:",
-                oldAmount
+                transaction.amount
             );
 
 
@@ -1232,16 +1405,14 @@ function editTransaction(id) {
                 "Select Expense Allocation:\n\n" +
 
                 "1 = Personal\n" +
-
                 "2 = Emergency\n" +
-
                 "3 = Savings\n\n" +
 
                 "Enter 1, 2 or 3:",
 
-                oldAllocation === "Personal"
+                transaction.allocation === "Personal"
                     ? "1"
-                    : oldAllocation === "Emergency"
+                    : transaction.allocation === "Emergency"
                         ? "2"
                         : "3"
 
@@ -1316,7 +1487,7 @@ function editTransaction(id) {
 
 
         // ----------------------------------
-        // Temporarily update
+        // UPDATE TEMPORARILY
         // ----------------------------------
 
         transaction.amount =
@@ -1332,12 +1503,12 @@ function editTransaction(id) {
             purpose.trim();
 
 
-        // ----------------------------------
-        // Check if balance becomes negative
-        // ----------------------------------
-
         rebuildDataFromTransactions();
 
+
+        // ----------------------------------
+        // VALIDATE
+        // ----------------------------------
 
         if (
             personalBalance < -0.001 ||
@@ -1345,13 +1516,11 @@ function editTransaction(id) {
             savingsBalance < -0.001
         ) {
 
-            // Restore old values
 
-            transaction.amount =
-                oldAmount;
-
-            transaction.allocation =
-                oldAllocation;
+            Object.assign(
+                transaction,
+                oldTransaction
+            );
 
 
             rebuildDataFromTransactions();
@@ -1360,6 +1529,7 @@ function editTransaction(id) {
             alert(
                 "This edit cannot be completed because the selected allocation does not have sufficient balance."
             );
+
 
             return;
 
@@ -1380,6 +1550,10 @@ function editTransaction(id) {
     // ======================================
 
     if (transaction.type === "Debit") {
+
+
+        const oldTransaction =
+            { ...transaction };
 
 
         const amount =
@@ -1495,13 +1669,26 @@ function editTransaction(id) {
         rebuildDataFromTransactions();
 
 
-        // Check that debit did not become negative
+        // ----------------------------------
+        // VALIDATE DEBIT
+        // ----------------------------------
 
         if (debitOutstanding < -0.001) {
+
+
+            Object.assign(
+                transaction,
+                oldTransaction
+            );
+
+
+            rebuildDataFromTransactions();
+
 
             alert(
                 "Debit edit is not possible because existing payments are greater than the new debit amount."
             );
+
 
             return;
 
@@ -1527,14 +1714,14 @@ function editTransaction(id) {
     ) {
 
 
-        const oldAmount =
-            Number(transaction.amount);
+        const oldTransaction =
+            { ...transaction };
 
 
         const amount =
             prompt(
                 "Enter new Debit Payment Amount:",
-                oldAmount
+                transaction.amount
             );
 
 
@@ -1625,19 +1812,25 @@ function editTransaction(id) {
 
 
         // ----------------------------------
-        // Check debit outstanding
+        // CHECK DEBIT
         // ----------------------------------
 
         if (debitOutstanding < -0.001) {
+
+
+            Object.assign(
+                transaction,
+                oldTransaction
+            );
+
+
+            rebuildDataFromTransactions();
+
 
             alert(
                 "Payment cannot be greater than the available debit."
             );
 
-            transaction.amount =
-                oldAmount;
-
-            rebuildDataFromTransactions();
 
             return;
 
@@ -1645,19 +1838,25 @@ function editTransaction(id) {
 
 
         // ----------------------------------
-        // Check PPF
+        // CHECK PPF
         // ----------------------------------
 
         if (ppfBalance < -0.001) {
+
+
+            Object.assign(
+                transaction,
+                oldTransaction
+            );
+
+
+            rebuildDataFromTransactions();
+
 
             alert(
                 "This payment cannot be completed because PPF balance is insufficient."
             );
 
-            transaction.amount =
-                oldAmount;
-
-            rebuildDataFromTransactions();
 
             return;
 
@@ -1745,6 +1944,7 @@ function deleteTransaction(id) {
         debitOutstanding < -0.001
     ) {
 
+
         transactions =
             oldTransactions;
 
@@ -1755,6 +1955,7 @@ function deleteTransaction(id) {
         alert(
             "This transaction cannot be deleted because other transactions depend on it."
         );
+
 
         return;
 
@@ -1858,13 +2059,13 @@ function loadData() {
 
 
         // ----------------------------------
-        // Rebuild everything from history
+        // Rebuild from transaction history
         // ----------------------------------
 
         rebuildDataFromTransactions();
 
-
     }
+
 
     catch (error) {
 

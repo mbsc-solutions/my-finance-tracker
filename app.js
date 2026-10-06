@@ -8,7 +8,6 @@
 // DEFAULT DATA
 // ==========================================
 
-// Existing Debit
 let debitOutstanding = 2250000;
 
 
@@ -56,37 +55,34 @@ let transactions = [];
 // ADD INCOME
 // ==========================================
 
-function addIncome(amount, date, purpose, notes = "") {
+function addIncome(
+    amount,
+    date,
+    source,
+    purpose
+) {
 
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
-
         alert("Please enter a valid income amount.");
-
         return;
     }
 
     if (!date) {
-
         alert("Please select income date.");
+        return;
+    }
 
+    if (!source || source.trim() === "") {
+        alert("Please enter income source.");
         return;
     }
 
     if (!purpose || purpose.trim() === "") {
-
         alert("Please enter income purpose.");
-
         return;
     }
-
-
-    // --------------------------------------
-    // ADD TO TOTAL INCOME
-    // --------------------------------------
-
-    totalIncome += amount;
 
 
     // --------------------------------------
@@ -110,6 +106,19 @@ function addIncome(amount, date, purpose, notes = "") {
 
 
     // --------------------------------------
+    // TOTAL INCOME
+    //
+    // ONLY PERSONAL + EMERGENCY + SAVINGS
+    // PPF + JAR NOT INCLUDED
+    // --------------------------------------
+
+    totalIncome =
+        personalBalance +
+        emergencyBalance +
+        savingsBalance;
+
+
+    // --------------------------------------
     // SAVE INCOME HISTORY
     // --------------------------------------
 
@@ -123,9 +132,9 @@ function addIncome(amount, date, purpose, notes = "") {
 
         date: date,
 
-        purpose: purpose.trim(),
+        source: source.trim(),
 
-        notes: notes.trim()
+        purpose: purpose.trim()
 
     });
 
@@ -141,55 +150,127 @@ function addIncome(amount, date, purpose, notes = "") {
 // ADD EXPENSE
 // ==========================================
 
-function addExpense(amount, date, purpose, notes = "") {
+function addExpense(
+    amount,
+    date,
+    allocationType,
+    purpose
+) {
 
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
-
         alert("Please enter a valid expense amount.");
-
         return;
     }
 
     if (!date) {
-
         alert("Please select expense date.");
-
         return;
     }
 
-    if (!purpose || purpose.trim() === "") {
-
-        alert("Please enter expense purpose.");
-
-        return;
-    }
-
-
-    // --------------------------------------
-    // EXPENSE FROM PERSONAL ONLY
-    // --------------------------------------
-
-    if (amount > personalBalance) {
+    if (
+        allocationType !== "Personal" &&
+        allocationType !== "Emergency" &&
+        allocationType !== "Savings"
+    ) {
 
         alert(
-            "Personal allocation lo sufficient balance ledu.\n\n" +
-            "Available Personal Balance: ₹" +
-            personalBalance.toFixed(2)
+            "Expense can be taken only from Personal, Emergency or Savings."
         );
 
         return;
     }
 
+    if (!purpose || purpose.trim() === "") {
+        alert("Please enter expense purpose.");
+        return;
+    }
+
 
     // --------------------------------------
-    // DEDUCT EXPENSE FROM PERSONAL
+    // PERSONAL EXPENSE
     // --------------------------------------
 
-    personalBalance -= amount;
+    if (allocationType === "Personal") {
+
+        if (amount > personalBalance) {
+
+            alert(
+                "Personal allocation lo sufficient balance ledu.\n\n" +
+                "Available Personal Balance: ₹" +
+                personalBalance.toFixed(2)
+            );
+
+            return;
+        }
+
+        personalBalance -= amount;
+
+    }
+
+
+    // --------------------------------------
+    // EMERGENCY EXPENSE
+    // --------------------------------------
+
+    if (allocationType === "Emergency") {
+
+        if (amount > emergencyBalance) {
+
+            alert(
+                "Emergency allocation lo sufficient balance ledu.\n\n" +
+                "Available Emergency Balance: ₹" +
+                emergencyBalance.toFixed(2)
+            );
+
+            return;
+        }
+
+        emergencyBalance -= amount;
+
+    }
+
+
+    // --------------------------------------
+    // SAVINGS EXPENSE
+    // --------------------------------------
+
+    if (allocationType === "Savings") {
+
+        if (amount > savingsBalance) {
+
+            alert(
+                "Savings allocation lo sufficient balance ledu.\n\n" +
+                "Available Savings Balance: ₹" +
+                savingsBalance.toFixed(2)
+            );
+
+            return;
+        }
+
+        savingsBalance -= amount;
+
+    }
+
+
+    // --------------------------------------
+    // ADD TOTAL EXPENSES
+    // --------------------------------------
 
     totalExpenses += amount;
+
+
+    // --------------------------------------
+    // TOTAL INCOME DISPLAY
+    //
+    // Personal + Emergency + Savings
+    // --------------------------------------
+
+    totalIncome =
+        personalBalance +
+        emergencyBalance +
+        savingsBalance;
 
 
     // --------------------------------------
@@ -206,9 +287,9 @@ function addExpense(amount, date, purpose, notes = "") {
 
         date: date,
 
-        purpose: purpose.trim(),
+        allocation: allocationType,
 
-        notes: notes.trim()
+        purpose: purpose.trim()
 
     });
 
@@ -229,8 +310,7 @@ function addDebit(
     date,
     person,
     dueDate,
-    purpose = "",
-    notes = ""
+    purpose
 ) {
 
     amount = Number(amount);
@@ -256,9 +336,16 @@ function addDebit(
         return;
     }
 
+    if (!purpose || purpose.trim() === "") {
+
+        alert("Please enter debit purpose.");
+
+        return;
+    }
+
 
     // --------------------------------------
-    // ADD TO DEBIT ONLY
+    // ADD TO DEBIT
     // --------------------------------------
 
     debitOutstanding += amount;
@@ -282,9 +369,7 @@ function addDebit(
 
         dueDate: dueDate || "",
 
-        purpose: purpose.trim(),
-
-        notes: notes.trim()
+        purpose: purpose.trim()
 
     });
 
@@ -299,13 +384,14 @@ function addDebit(
 // ==========================================
 // PAY DEBIT
 // ==========================================
+// Debit payment is taken ONLY from PPF
+// ==========================================
 
 function payDebit(
     amount,
     date,
     person,
-    purpose = "",
-    notes = ""
+    purpose
 ) {
 
     amount = Number(amount);
@@ -324,9 +410,16 @@ function payDebit(
         return;
     }
 
+    if (!purpose || purpose.trim() === "") {
+
+        alert("Please enter payment purpose.");
+
+        return;
+    }
+
 
     // --------------------------------------
-    // CHECK DEBIT OUTSTANDING
+    // CHECK DEBIT
     // --------------------------------------
 
     if (debitOutstanding <= 0) {
@@ -336,6 +429,10 @@ function payDebit(
         return;
     }
 
+
+    // --------------------------------------
+    // PAYMENT CANNOT EXCEED DEBIT
+    // --------------------------------------
 
     if (amount > debitOutstanding) {
 
@@ -350,7 +447,7 @@ function payDebit(
 
 
     // --------------------------------------
-    // CHECK PPF BALANCE
+    // PAYMENT CANNOT EXCEED PPF
     // --------------------------------------
 
     if (amount > ppfBalance) {
@@ -358,9 +455,7 @@ function payDebit(
         alert(
             "PPF balance lo sufficient amount ledu.\n\n" +
             "Available PPF Balance: ₹" +
-            ppfBalance.toFixed(2) +
-            "\n\n" +
-            "Debit Payment requires PPF balance."
+            ppfBalance.toFixed(2)
         );
 
         return;
@@ -368,22 +463,28 @@ function payDebit(
 
 
     // --------------------------------------
-    // DEBIT PAYMENT
-    // --------------------------------------
-    // Debit reduces
-    // PPF also reduces
-    // Other allocations DO NOT reduce
+    // DEDUCT FROM DEBIT
     // --------------------------------------
 
     debitOutstanding -= amount;
 
+
+    // --------------------------------------
+    // DEDUCT FROM PPF
+    // --------------------------------------
+
     ppfBalance -= amount;
+
+
+    // --------------------------------------
+    // TOTAL DEBIT PAID
+    // --------------------------------------
 
     totalDebitPaid += amount;
 
 
     // --------------------------------------
-    // SAVE DEBIT PAYMENT HISTORY
+    // SAVE PAYMENT HISTORY
     // --------------------------------------
 
     transactions.push({
@@ -400,9 +501,7 @@ function payDebit(
             ? person.trim()
             : "",
 
-        purpose: purpose.trim(),
-
-        notes: notes.trim()
+        purpose: purpose.trim()
 
     });
 
@@ -420,14 +519,16 @@ function payDebit(
 
 function getAvailableBalance() {
 
-    // Available balance is Personal balance
-    // because expenses are from Personal
+    // Available balance means
+    // Personal + Emergency + Savings
 
     return Math.max(
 
         0,
 
-        personalBalance
+        personalBalance +
+        emergencyBalance +
+        savingsBalance
 
     );
 
@@ -444,6 +545,15 @@ function updateDashboard() {
     // --------------------------------------
     // TOTAL INCOME
     // --------------------------------------
+    // Personal + Emergency + Savings ONLY
+    // PPF + Jar excluded
+    // --------------------------------------
+
+    totalIncome =
+        personalBalance +
+        emergencyBalance +
+        savingsBalance;
+
 
     const incomeElement =
         document.getElementById("totalIncome");
@@ -657,6 +767,32 @@ function displayTransactions() {
                 let extraInfo = "";
 
 
+                // Source
+                if (transaction.source) {
+
+                    extraInfo +=
+
+                        `<div>
+                            <strong>Source:</strong>
+                            ${transaction.source}
+                        </div>`;
+
+                }
+
+
+                // Allocation
+                if (transaction.allocation) {
+
+                    extraInfo +=
+
+                        `<div>
+                            <strong>From:</strong>
+                            ${transaction.allocation}
+                        </div>`;
+
+                }
+
+
                 // Person
                 if (transaction.person) {
 
@@ -678,19 +814,6 @@ function displayTransactions() {
                         `<div>
                             <strong>Due Date:</strong>
                             ${transaction.dueDate}
-                        </div>`;
-
-                }
-
-
-                // Notes
-                if (transaction.notes) {
-
-                    extraInfo +=
-
-                        `<div>
-                            <strong>Notes:</strong>
-                            ${transaction.notes}
                         </div>`;
 
                 }
@@ -815,13 +938,6 @@ function loadData() {
             );
 
 
-        totalIncome =
-            Number(
-                data.totalIncome
-                ?? 0
-            );
-
-
         totalExpenses =
             Number(
                 data.totalExpenses
@@ -877,6 +993,17 @@ function loadData() {
             )
                 ? data.transactions
                 : [];
+
+
+        // ----------------------------------
+        // TOTAL INCOME
+        // Personal + Emergency + Savings
+        // ----------------------------------
+
+        totalIncome =
+            personalBalance +
+            emergencyBalance +
+            savingsBalance;
 
 
     } catch (error) {

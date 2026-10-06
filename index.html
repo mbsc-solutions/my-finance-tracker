@@ -443,6 +443,110 @@
 
 
 // =====================================
+// CONVERT DD-MM-YYYY TO YYYY-MM-DD
+// =====================================
+
+function convertDateToStorage(dateString) {
+
+    if (!dateString) {
+        return "";
+    }
+
+
+    const parts =
+        dateString.trim().split("-");
+
+
+    if (parts.length !== 3) {
+
+        return dateString;
+
+    }
+
+
+    const day = parts[0];
+
+    const month = parts[1];
+
+    const year = parts[2];
+
+
+    if (
+        day.length !== 2 ||
+        month.length !== 2 ||
+        year.length !== 4
+    ) {
+
+        return dateString;
+
+    }
+
+
+    return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+    );
+
+}
+
+
+// =====================================
+// VALIDATE DD-MM-YYYY
+// =====================================
+
+function isValidDateFormat(dateString) {
+
+    if (!dateString) {
+        return false;
+    }
+
+
+    const regex =
+        /^\d{2}-\d{2}-\d{4}$/;
+
+
+    if (!regex.test(dateString)) {
+
+        return false;
+
+    }
+
+
+    const parts =
+        dateString.split("-");
+
+
+    const day =
+        Number(parts[0]);
+
+    const month =
+        Number(parts[1]);
+
+    const year =
+        Number(parts[2]);
+
+
+    if (
+        month < 1 ||
+        month > 12 ||
+        day < 1 ||
+        day > 31
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// =====================================
 // INCOME PROMPT
 // =====================================
 
@@ -456,14 +560,29 @@ function addIncomePrompt() {
     }
 
 
-    const date =
+    const dateInput =
         prompt(
-            "Enter Income Date (YYYY-MM-DD):"
+            "Enter Income Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
         );
 
-    if (date === null) {
+    if (dateInput === null) {
         return;
     }
+
+
+    if (!isValidDateFormat(dateInput)) {
+
+        alert(
+            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
+        );
+
+        return;
+
+    }
+
+
+    const date =
+        convertDateToStorage(dateInput);
 
 
     const source =
@@ -510,24 +629,44 @@ function addExpensePrompt() {
     }
 
 
-    const date =
+    const dateInput =
         prompt(
-            "Enter Expense Date (YYYY-MM-DD):"
+            "Enter Expense Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
         );
 
-    if (date === null) {
+    if (dateInput === null) {
         return;
     }
 
 
+    if (!isValidDateFormat(dateInput)) {
+
+        alert(
+            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
+        );
+
+        return;
+
+    }
+
+
+    const date =
+        convertDateToStorage(dateInput);
+
+
     const allocationType =
         prompt(
+
             "Expense From Which Allocation?\n\n" +
+
             "1 = Personal\n" +
             "2 = Emergency\n" +
             "3 = Savings\n\n" +
+
             "Enter 1, 2 or 3:"
+
         );
+
 
     if (allocationType === null) {
         return;
@@ -539,19 +678,25 @@ function addExpensePrompt() {
 
     if (allocationType === "1") {
 
-        selectedAllocation = "Personal";
+        selectedAllocation =
+            "Personal";
 
     }
+
     else if (allocationType === "2") {
 
-        selectedAllocation = "Emergency";
+        selectedAllocation =
+            "Emergency";
 
     }
+
     else if (allocationType === "3") {
 
-        selectedAllocation = "Savings";
+        selectedAllocation =
+            "Savings";
 
     }
+
     else {
 
         alert(
@@ -559,6 +704,7 @@ function addExpensePrompt() {
         );
 
         return;
+
     }
 
 
@@ -598,14 +744,29 @@ function addDebitPrompt() {
     }
 
 
-    const date =
+    const dateInput =
         prompt(
-            "Debit Date (YYYY-MM-DD):"
+            "Debit Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
         );
 
-    if (date === null) {
+    if (dateInput === null) {
         return;
     }
+
+
+    if (!isValidDateFormat(dateInput)) {
+
+        alert(
+            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
+        );
+
+        return;
+
+    }
+
+
+    const date =
+        convertDateToStorage(dateInput);
 
 
     const person =
@@ -618,10 +779,34 @@ function addDebitPrompt() {
     }
 
 
-    const dueDate =
+    const dueDateInput =
         prompt(
-            "Due Date (YYYY-MM-DD) - Optional:"
+            "Due Date (DD-MM-YYYY) - Optional:\n\nExample: 06-11-2026"
         ) || "";
+
+
+    let dueDate = "";
+
+
+    if (dueDateInput.trim() !== "") {
+
+        if (!isValidDateFormat(dueDateInput)) {
+
+            alert(
+                "Please enter Due Date in DD-MM-YYYY format.\n\nExample: 06-11-2026"
+            );
+
+            return;
+
+        }
+
+
+        dueDate =
+            convertDateToStorage(
+                dueDateInput
+            );
+
+    }
 
 
     const purpose =
@@ -665,14 +850,29 @@ function payDebitPrompt(person = "") {
     }
 
 
-    const date =
+    const dateInput =
         prompt(
-            "Payment Date (YYYY-MM-DD):"
+            "Payment Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
         );
 
-    if (date === null) {
+    if (dateInput === null) {
         return;
     }
+
+
+    if (!isValidDateFormat(dateInput)) {
+
+        alert(
+            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
+        );
+
+        return;
+
+    }
+
+
+    const date =
+        convertDateToStorage(dateInput);
 
 
     const paymentPerson =

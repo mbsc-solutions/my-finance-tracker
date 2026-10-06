@@ -1,76 +1,71 @@
 let totalIncome = 0;
 let totalExpenses = 0;
-
 let totalDebit = 0;
 let totalDebitPaid = 0;
 
 
-// Income Allocation
-const allocation = {
-    Personal: 30,
-    Emergency: 20,
-    Savings: 20,
-    PPF: 20,
-    Jar: 10
-};
-
-
-// Add Income
+// =========================
+// ADD INCOME
+// =========================
 function addIncome(amount) {
 
     amount = Number(amount);
 
-    if (isNaN(amount) || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
         alert("Please enter a valid income amount.");
         return;
     }
 
-    // Income ONLY increases income
-    totalIncome += amount;
+    totalIncome = totalIncome + amount;
 
     updateDashboard();
 }
 
 
-// Add Expense
+// =========================
+// ADD EXPENSE
+// =========================
 function addExpense(amount) {
 
     amount = Number(amount);
 
-    if (isNaN(amount) || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
         alert("Please enter a valid expense amount.");
         return;
     }
 
-    totalExpenses += amount;
+    totalExpenses = totalExpenses + amount;
 
     updateDashboard();
 }
 
 
-// Add Debit
+// =========================
+// ADD DEBIT
+// =========================
 function addDebit(amount) {
 
     amount = Number(amount);
 
-    if (isNaN(amount) || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
         alert("Please enter a valid debit amount.");
         return;
     }
 
-    // Debit is created here
-    totalDebit += amount;
+    totalDebit = totalDebit + amount;
 
     updateDashboard();
 }
 
 
-// Pay Debit
+// =========================
+// PAY DEBIT
+// =========================
 function payDebit(amount) {
 
     amount = Number(amount);
 
-    if (isNaN(amount) || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
         alert("Please enter a valid payment amount.");
         return;
     }
@@ -78,26 +73,24 @@ function payDebit(amount) {
     const remainingDebit = totalDebit - totalDebitPaid;
 
     if (remainingDebit <= 0) {
-        alert("There is no outstanding debit.");
+        alert("No outstanding debit.");
         return;
     }
 
     if (amount > remainingDebit) {
-        alert(
-            "Payment cannot be greater than remaining debit.\n" +
-            "Remaining Debit: ₹" + remainingDebit.toFixed(2)
-        );
+        alert("Payment is greater than outstanding debit.");
         return;
     }
 
-    // ONLY debit payment increases paid debit
-    totalDebitPaid += amount;
+    totalDebitPaid = totalDebitPaid + amount;
 
     updateDashboard();
 }
 
 
-// Remaining Debit
+// =========================
+// REMAINING DEBIT
+// =========================
 function getRemainingDebit() {
 
     return Math.max(
@@ -107,19 +100,22 @@ function getRemainingDebit() {
 }
 
 
-// Available Balance
+// =========================
+// AVAILABLE BALANCE
+// =========================
 function getAvailableBalance() {
 
     return (
-        totalIncome -
-        totalExpenses -
-        totalDebitPaid
+        totalIncome
+        - totalExpenses
+        - totalDebitPaid
     );
-
 }
 
 
-// Update Dashboard
+// =========================
+// UPDATE DASHBOARD
+// =========================
 function updateDashboard() {
 
     const incomeElement =
@@ -137,33 +133,29 @@ function updateDashboard() {
 
     if (incomeElement) {
 
-        incomeElement.innerText =
+        incomeElement.textContent =
             "₹" + totalIncome.toFixed(2);
-
     }
 
 
     if (expenseElement) {
 
-        expenseElement.innerText =
+        expenseElement.textContent =
             "₹" + totalExpenses.toFixed(2);
-
     }
 
 
     if (debitElement) {
 
-        debitElement.innerText =
+        debitElement.textContent =
             "₹" + getRemainingDebit().toFixed(2);
-
     }
 
 
     if (balanceElement) {
 
-        balanceElement.innerText =
+        balanceElement.textContent =
             "₹" + getAvailableBalance().toFixed(2);
-
     }
 
 }

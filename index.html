@@ -24,8 +24,6 @@
             color: #1e293b;
         }
 
-        /* HEADER */
-
         .header {
             background: #0f172a;
             color: white;
@@ -42,21 +40,15 @@
             color: #cbd5e1;
         }
 
-        /* CONTAINER */
-
         .container {
             max-width: 1150px;
             margin: auto;
             padding: 20px;
         }
 
-        /* BUTTONS */
-
         .buttons {
             display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(180px, 1fr));
-
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -87,14 +79,9 @@
             background: #2563eb;
         }
 
-        /* DASHBOARD */
-
         .cards {
             display: grid;
-
-            grid-template-columns:
-                repeat(auto-fit, minmax(200px, 1fr));
-
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
         }
 
@@ -102,9 +89,7 @@
             background: white;
             padding: 20px;
             border-radius: 16px;
-
-            box-shadow:
-                0 5px 18px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
         }
 
         .card h3 {
@@ -134,31 +119,21 @@
             color: #2563eb;
         }
 
-        /* SECTION */
-
         .section {
             background: white;
             margin-top: 20px;
             padding: 20px;
-
             border-radius: 16px;
-
-            box-shadow:
-                0 5px 18px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
         }
 
         .section h2 {
             margin-bottom: 15px;
         }
 
-        /* ALLOCATION */
-
         .allocation {
             display: grid;
-
-            grid-template-columns:
-                repeat(auto-fit, minmax(150px, 1fr));
-
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 12px;
         }
 
@@ -174,15 +149,11 @@
             font-size: 20px;
         }
 
-        /* INFO */
-
         .info {
             margin-top: 15px;
             color: #64748b;
             font-size: 14px;
         }
-
-        /* MOBILE */
 
         @media(max-width:600px) {
 
@@ -202,5 +173,159 @@
 
     </style>
 
-</hea
-```
+</head>
+
+<body>
+
+<header class="header">
+
+    <h1>My Finance Tracker</h1>
+
+    <p>Income • Expenses • Debit • Credit</p>
+
+</header>
+
+<div class="container">
+
+    <div class="buttons">
+
+        <button
+            class="incomeBtn"
+            onclick="addIncomePrompt()">
+            + Add Income
+        </button>
+
+        <button
+            class="expenseBtn"
+            onclick="addExpensePrompt()">
+            + Add Expense
+        </button>
+
+        <button
+            class="debitBtn"
+            onclick="addDebitPrompt()">
+            + Add Debit
+        </button>
+
+        <button
+            class="payBtn"
+            onclick="payDebitPrompt()">
+            💰 Pay Debit
+        </button>
+
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Income</h3>
+            <div class="amount income">₹0</div>
+        </div>
+
+        <div class="card">
+            <h3>Total Expenses</h3>
+            <div class="amount expense">₹0</div>
+        </div>
+
+        <div class="card">
+            <h3>Debit Outstanding</h3>
+            <div class="amount debit">₹0</div>
+        </div>
+
+        <div class="card">
+            <h3>Available Balance</h3>
+            <div class="amount balance">₹0</div>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>💰 Income Allocation</h2>
+
+        <div class="allocation">
+
+            <div>
+                Personal
+                <strong>30%</strong>
+            </div>
+
+            <div>
+                Emergency
+                <strong>20%</strong>
+            </div>
+
+            <div>
+                Savings
+                <strong>20%</strong>
+            </div>
+
+            <div>
+                PPF
+                <strong>20%</strong>
+            </div>
+
+            <div>
+                Jar
+                <strong>10%</strong>
+            </div>
+
+        </div>
+
+        <div class="info">
+            Income will automatically be divided according to these percentages.
+        </div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+function addIncomePrompt() {
+
+    const amount = prompt("Enter Income Amount:");
+
+    if (amount !== null) {
+        addIncome(amount);
+    }
+
+}
+
+function addExpensePrompt() {
+
+    const amount = prompt("Enter Expense Amount:");
+
+    if (amount !== null) {
+        addExpense(amount);
+    }
+
+}
+
+function addDebitPrompt() {
+
+    const amount = prompt("Enter Debit Amount:");
+
+    if (amount !== null) {
+        addDebit(amount);
+    }
+
+}
+
+function payDebitPrompt() {
+
+    const amount = prompt("Enter Paid Debit Amount:");
+
+    if (amount !== null) {
+        payDebit(amount);
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>

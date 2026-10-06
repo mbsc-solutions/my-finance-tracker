@@ -61,31 +61,37 @@ function addIncome(amount, date, purpose, notes = "") {
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
+
         alert("Please enter a valid income amount.");
+
         return;
     }
 
     if (!date) {
+
         alert("Please select income date.");
+
         return;
     }
 
     if (!purpose || purpose.trim() === "") {
+
         alert("Please enter income purpose.");
+
         return;
     }
 
 
-    // ------------------------------
-    // ADD TO INCOME
-    // ------------------------------
+    // --------------------------------------
+    // ADD TO TOTAL INCOME
+    // --------------------------------------
 
     totalIncome += amount;
 
 
-    // ------------------------------
+    // --------------------------------------
     // ALLOCATE INCOME
-    // ------------------------------
+    // --------------------------------------
 
     personalBalance +=
         amount * allocation.Personal / 100;
@@ -103,9 +109,9 @@ function addIncome(amount, date, purpose, notes = "") {
         amount * allocation.Jar / 100;
 
 
-    // ------------------------------
-    // SAVE HISTORY
-    // ------------------------------
+    // --------------------------------------
+    // SAVE INCOME HISTORY
+    // --------------------------------------
 
     transactions.push({
 
@@ -140,24 +146,30 @@ function addExpense(amount, date, purpose, notes = "") {
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
+
         alert("Please enter a valid expense amount.");
+
         return;
     }
 
     if (!date) {
+
         alert("Please select expense date.");
+
         return;
     }
 
     if (!purpose || purpose.trim() === "") {
+
         alert("Please enter expense purpose.");
+
         return;
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // EXPENSE FROM PERSONAL ONLY
-    // ------------------------------
+    // --------------------------------------
 
     if (amount > personalBalance) {
 
@@ -171,14 +183,18 @@ function addExpense(amount, date, purpose, notes = "") {
     }
 
 
+    // --------------------------------------
+    // DEDUCT EXPENSE FROM PERSONAL
+    // --------------------------------------
+
     personalBalance -= amount;
 
     totalExpenses += amount;
 
 
-    // ------------------------------
-    // SAVE HISTORY
-    // ------------------------------
+    // --------------------------------------
+    // SAVE EXPENSE HISTORY
+    // --------------------------------------
 
     transactions.push({
 
@@ -208,36 +224,49 @@ function addExpense(amount, date, purpose, notes = "") {
 // ADD NEW DEBIT
 // ==========================================
 
-function addDebit(amount, date, person, dueDate, purpose = "", notes = "") {
+function addDebit(
+    amount,
+    date,
+    person,
+    dueDate,
+    purpose = "",
+    notes = ""
+) {
 
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
+
         alert("Please enter a valid debit amount.");
+
         return;
     }
 
     if (!date) {
+
         alert("Please select debit date.");
+
         return;
     }
 
     if (!person || person.trim() === "") {
+
         alert("Please enter person name.");
+
         return;
     }
 
 
-    // ------------------------------
-    // ADD TO DEBIT
-    // ------------------------------
+    // --------------------------------------
+    // ADD TO DEBIT ONLY
+    // --------------------------------------
 
     debitOutstanding += amount;
 
 
-    // ------------------------------
-    // SAVE HISTORY
-    // ------------------------------
+    // --------------------------------------
+    // SAVE DEBIT HISTORY
+    // --------------------------------------
 
     transactions.push({
 
@@ -271,19 +300,42 @@ function addDebit(amount, date, person, dueDate, purpose = "", notes = "") {
 // PAY DEBIT
 // ==========================================
 
-function payDebit(amount, date, person, purpose = "", notes = "") {
+function payDebit(
+    amount,
+    date,
+    person,
+    purpose = "",
+    notes = ""
+) {
 
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
+
         alert("Please enter a valid payment amount.");
+
         return;
     }
 
     if (!date) {
+
         alert("Please select payment date.");
+
         return;
     }
+
+
+    // --------------------------------------
+    // CHECK DEBIT OUTSTANDING
+    // --------------------------------------
+
+    if (debitOutstanding <= 0) {
+
+        alert("No outstanding debit.");
+
+        return;
+    }
+
 
     if (amount > debitOutstanding) {
 
@@ -297,18 +349,42 @@ function payDebit(amount, date, person, purpose = "", notes = "") {
     }
 
 
-    // ------------------------------
-    // REDUCE DEBIT ONLY
-    // ------------------------------
+    // --------------------------------------
+    // CHECK PPF BALANCE
+    // --------------------------------------
+
+    if (amount > ppfBalance) {
+
+        alert(
+            "PPF balance lo sufficient amount ledu.\n\n" +
+            "Available PPF Balance: ₹" +
+            ppfBalance.toFixed(2) +
+            "\n\n" +
+            "Debit Payment requires PPF balance."
+        );
+
+        return;
+    }
+
+
+    // --------------------------------------
+    // DEBIT PAYMENT
+    // --------------------------------------
+    // Debit reduces
+    // PPF also reduces
+    // Other allocations DO NOT reduce
+    // --------------------------------------
 
     debitOutstanding -= amount;
+
+    ppfBalance -= amount;
 
     totalDebitPaid += amount;
 
 
-    // ------------------------------
-    // SAVE PAYMENT HISTORY
-    // ------------------------------
+    // --------------------------------------
+    // SAVE DEBIT PAYMENT HISTORY
+    // --------------------------------------
 
     transactions.push({
 
@@ -320,7 +396,9 @@ function payDebit(amount, date, person, purpose = "", notes = "") {
 
         date: date,
 
-        person: person ? person.trim() : "",
+        person: person
+            ? person.trim()
+            : "",
 
         purpose: purpose.trim(),
 
@@ -342,6 +420,9 @@ function payDebit(amount, date, person, purpose = "", notes = "") {
 
 function getAvailableBalance() {
 
+    // Available balance is Personal balance
+    // because expenses are from Personal
+
     return Math.max(
 
         0,
@@ -360,9 +441,9 @@ function getAvailableBalance() {
 function updateDashboard() {
 
 
-    // ------------------------------
+    // --------------------------------------
     // TOTAL INCOME
-    // ------------------------------
+    // --------------------------------------
 
     const incomeElement =
         document.getElementById("totalIncome");
@@ -370,14 +451,15 @@ function updateDashboard() {
     if (incomeElement) {
 
         incomeElement.textContent =
-            "₹" + totalIncome.toFixed(2);
+            "₹" +
+            totalIncome.toFixed(2);
 
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // TOTAL EXPENSES
-    // ------------------------------
+    // --------------------------------------
 
     const expenseElement =
         document.getElementById("totalExpenses");
@@ -385,14 +467,15 @@ function updateDashboard() {
     if (expenseElement) {
 
         expenseElement.textContent =
-            "₹" + totalExpenses.toFixed(2);
+            "₹" +
+            totalExpenses.toFixed(2);
 
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // DEBIT OUTSTANDING
-    // ------------------------------
+    // --------------------------------------
 
     const debitElement =
         document.getElementById("debitOutstanding");
@@ -406,9 +489,9 @@ function updateDashboard() {
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // AVAILABLE BALANCE
-    // ------------------------------
+    // --------------------------------------
 
     const balanceElement =
         document.getElementById("availableBalance");
@@ -422,9 +505,9 @@ function updateDashboard() {
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // PERSONAL
-    // ------------------------------
+    // --------------------------------------
 
     const personalElement =
         document.getElementById("personalAmount");
@@ -438,9 +521,9 @@ function updateDashboard() {
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // EMERGENCY
-    // ------------------------------
+    // --------------------------------------
 
     const emergencyElement =
         document.getElementById("emergencyAmount");
@@ -454,9 +537,9 @@ function updateDashboard() {
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // SAVINGS
-    // ------------------------------
+    // --------------------------------------
 
     const savingsElement =
         document.getElementById("savingsAmount");
@@ -470,9 +553,9 @@ function updateDashboard() {
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // PPF
-    // ------------------------------
+    // --------------------------------------
 
     const ppfElement =
         document.getElementById("ppfAmount");
@@ -486,9 +569,9 @@ function updateDashboard() {
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // JAR
-    // ------------------------------
+    // --------------------------------------
 
     const jarElement =
         document.getElementById("jarAmount");
@@ -502,9 +585,9 @@ function updateDashboard() {
     }
 
 
-    // ------------------------------
+    // --------------------------------------
     // TRANSACTION HISTORY
-    // ------------------------------
+    // --------------------------------------
 
     displayTransactions();
 
@@ -518,7 +601,9 @@ function updateDashboard() {
 function displayTransactions() {
 
     const historyElement =
-        document.getElementById("transactionHistory");
+        document.getElementById(
+            "transactionHistory"
+        );
 
 
     if (!historyElement) {
@@ -538,74 +623,114 @@ function displayTransactions() {
     }
 
 
+    // --------------------------------------
+    // SORT BY DATE
+    // --------------------------------------
+
     const sortedTransactions =
         [...transactions].sort(
-            (a, b) =>
-                new Date(b.date) -
-                new Date(a.date)
+
+            (a, b) => {
+
+                const dateA =
+                    new Date(a.date);
+
+                const dateB =
+                    new Date(b.date);
+
+                return dateB - dateA;
+
+            }
+
         );
 
 
+    // --------------------------------------
+    // DISPLAY
+    // --------------------------------------
+
     historyElement.innerHTML =
-        sortedTransactions.map(transaction => {
+
+        sortedTransactions
+            .map(transaction => {
+
+                let extraInfo = "";
 
 
-            let extraInfo = "";
+                // Person
+                if (transaction.person) {
+
+                    extraInfo +=
+
+                        `<div>
+                            <strong>Person:</strong>
+                            ${transaction.person}
+                        </div>`;
+
+                }
 
 
-            if (transaction.person) {
+                // Due Date
+                if (transaction.dueDate) {
 
-                extraInfo +=
-                    `<div><strong>Person:</strong> ${transaction.person}</div>`;
+                    extraInfo +=
 
-            }
+                        `<div>
+                            <strong>Due Date:</strong>
+                            ${transaction.dueDate}
+                        </div>`;
 
-
-            if (transaction.dueDate) {
-
-                extraInfo +=
-                    `<div><strong>Due Date:</strong> ${transaction.dueDate}</div>`;
-
-            }
+                }
 
 
-            if (transaction.notes) {
+                // Notes
+                if (transaction.notes) {
 
-                extraInfo +=
-                    `<div><strong>Notes:</strong> ${transaction.notes}</div>`;
+                    extraInfo +=
 
-            }
+                        `<div>
+                            <strong>Notes:</strong>
+                            ${transaction.notes}
+                        </div>`;
+
+                }
 
 
-            return `
+                return `
 
-                <div class="transaction-item">
+                    <div class="transaction-item">
 
-                    <div>
-                        <strong>${transaction.type}</strong>
+                        <div>
+                            <strong>
+                                ${transaction.type}
+                            </strong>
+                        </div>
+
+                        <div>
+                            ₹${Number(
+                                transaction.amount
+                            ).toFixed(2)}
+                        </div>
+
+                        <div>
+                            <strong>Date:</strong>
+                            ${transaction.date}
+                        </div>
+
+                        <div>
+                            <strong>Purpose:</strong>
+                            ${transaction.purpose || "-"}
+                        </div>
+
+                        ${extraInfo}
+
                     </div>
 
-                    <div>
-                        ₹${Number(transaction.amount).toFixed(2)}
-                    </div>
+                `;
 
-                    <div>
-                        <strong>Date:</strong>
-                        ${transaction.date}
-                    </div>
+            })
 
-                    <div>
-                        <strong>Purpose:</strong>
-                        ${transaction.purpose || "-"}
-                    </div>
-
-                    ${extraInfo}
-
-                </div>
-
-            `;
-
-        }).join("");
+            .join("");
 
 }
 
@@ -664,6 +789,10 @@ function loadData() {
         );
 
 
+    // --------------------------------------
+    // FIRST TIME OPEN
+    // --------------------------------------
+
     if (!savedData) {
 
         updateDashboard();
@@ -680,34 +809,72 @@ function loadData() {
 
 
         debitOutstanding =
-            Number(data.debitOutstanding ?? 2250000);
+            Number(
+                data.debitOutstanding
+                ?? 2250000
+            );
+
 
         totalIncome =
-            Number(data.totalIncome ?? 0);
+            Number(
+                data.totalIncome
+                ?? 0
+            );
+
 
         totalExpenses =
-            Number(data.totalExpenses ?? 0);
+            Number(
+                data.totalExpenses
+                ?? 0
+            );
+
 
         totalDebitPaid =
-            Number(data.totalDebitPaid ?? 0);
+            Number(
+                data.totalDebitPaid
+                ?? 0
+            );
+
 
         personalBalance =
-            Number(data.personalBalance ?? 0);
+            Number(
+                data.personalBalance
+                ?? 0
+            );
+
 
         emergencyBalance =
-            Number(data.emergencyBalance ?? 0);
+            Number(
+                data.emergencyBalance
+                ?? 0
+            );
+
 
         savingsBalance =
-            Number(data.savingsBalance ?? 0);
+            Number(
+                data.savingsBalance
+                ?? 0
+            );
+
 
         ppfBalance =
-            Number(data.ppfBalance ?? 0);
+            Number(
+                data.ppfBalance
+                ?? 0
+            );
+
 
         jarBalance =
-            Number(data.jarBalance ?? 0);
+            Number(
+                data.jarBalance
+                ?? 0
+            );
+
 
         transactions =
-            Array.isArray(data.transactions)
+            Array.isArray(
+                data.transactions
+            )
                 ? data.transactions
                 : [];
 

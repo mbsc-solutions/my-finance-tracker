@@ -243,8 +243,6 @@ function addExpense(
 function addDebit(
     amount,
     date,
-    person,
-    dueDate,
     purpose
 ) {
 
@@ -261,14 +259,6 @@ function addDebit(
     if (!date) {
 
         alert("Please enter debit date.");
-
-        return;
-
-    }
-
-    if (!person || person.trim() === "") {
-
-        alert("Please enter person name.");
 
         return;
 
@@ -292,10 +282,6 @@ function addDebit(
         amount: amount,
 
         date: date,
-
-        person: person.trim(),
-
-        dueDate: dueDate || "",
 
         purpose: purpose.trim()
 
@@ -368,10 +354,6 @@ function rebuildDataFromTransactions() {
             totalIncome += amount;
 
 
-            // ----------------------------------
-            // ALLOCATION
-            // ----------------------------------
-
             personalBalance +=
                 amount *
                 allocation.Personal /
@@ -439,14 +421,11 @@ function rebuildDataFromTransactions() {
 
             }
 
-            // PPF and Jar are NOT reduced
-            // by normal expenses.
-
         }
 
 
         // ==================================
-        // NEW DEBIT
+        // DEBIT
         // ==================================
 
         if (transaction.type === "Debit") {
@@ -454,16 +433,6 @@ function rebuildDataFromTransactions() {
             debitOutstanding += amount;
 
         }
-
-
-        // ==================================
-        // OLD DEBIT PAYMENT RECORDS
-        // ==================================
-        // Old "Debit Payment" records are
-        // intentionally ignored.
-        //
-        // This prevents old Pay Debit records
-        // from affecting the new app logic.
 
     });
 
@@ -567,13 +536,8 @@ function formatDate(dateString) {
 
 function updateDashboard() {
 
-
     rebuildDataFromTransactions();
 
-
-    // --------------------------------------
-    // TOTAL INCOME
-    // --------------------------------------
 
     const incomeElement =
         document.getElementById(
@@ -590,10 +554,6 @@ function updateDashboard() {
     }
 
 
-    // --------------------------------------
-    // TOTAL EXPENSES
-    // --------------------------------------
-
     const expenseElement =
         document.getElementById(
             "totalExpenses"
@@ -608,10 +568,6 @@ function updateDashboard() {
 
     }
 
-
-    // --------------------------------------
-    // DEBIT OUTSTANDING
-    // --------------------------------------
 
     const debitElement =
         document.getElementById(
@@ -631,10 +587,6 @@ function updateDashboard() {
     }
 
 
-    // --------------------------------------
-    // AVAILABLE BALANCE
-    // --------------------------------------
-
     const balanceElement =
         document.getElementById(
             "availableBalance"
@@ -649,10 +601,6 @@ function updateDashboard() {
 
     }
 
-
-    // --------------------------------------
-    // PERSONAL
-    // --------------------------------------
 
     const personalElement =
         document.getElementById(
@@ -672,10 +620,6 @@ function updateDashboard() {
     }
 
 
-    // --------------------------------------
-    // EMERGENCY
-    // --------------------------------------
-
     const emergencyElement =
         document.getElementById(
             "emergencyAmount"
@@ -693,10 +637,6 @@ function updateDashboard() {
 
     }
 
-
-    // --------------------------------------
-    // SAVINGS
-    // --------------------------------------
 
     const savingsElement =
         document.getElementById(
@@ -716,10 +656,6 @@ function updateDashboard() {
     }
 
 
-    // --------------------------------------
-    // PPF
-    // --------------------------------------
-
     const ppfElement =
         document.getElementById(
             "ppfAmount"
@@ -738,10 +674,6 @@ function updateDashboard() {
     }
 
 
-    // --------------------------------------
-    // JAR
-    // --------------------------------------
-
     const jarElement =
         document.getElementById(
             "jarAmount"
@@ -759,10 +691,6 @@ function updateDashboard() {
 
     }
 
-
-    // --------------------------------------
-    // TRANSACTION HISTORY
-    // --------------------------------------
 
     displayTransactions();
 
@@ -788,7 +716,18 @@ function displayTransactions() {
     }
 
 
-    if (transactions.length === 0) {
+    const validTransactions =
+        transactions.filter(
+            transaction =>
+
+                transaction.type === "Income" ||
+                transaction.type === "Expense" ||
+                transaction.type === "Debit"
+
+        );
+
+
+    if (validTransactions.length === 0) {
 
         historyElement.innerHTML =
             "<p>No transactions yet.</p>";
@@ -803,27 +742,21 @@ function displayTransactions() {
     // --------------------------------------
 
     const sortedTransactions =
-        [...transactions]
-            .filter(transaction =>
-                transaction.type === "Income" ||
-                transaction.type === "Expense" ||
-                transaction.type === "Debit"
-            )
-            .sort(
+        [...validTransactions].sort(
 
-                (a, b) => {
+            (a, b) => {
 
-                    const dateA =
-                        new Date(a.date);
+                const dateA =
+                    new Date(a.date);
 
-                    const dateB =
-                        new Date(b.date);
+                const dateB =
+                    new Date(b.date);
 
-                    return dateB - dateA;
+                return dateB - dateA;
 
-                }
+            }
 
-            );
+        );
 
 
     // --------------------------------------
@@ -851,42 +784,6 @@ function displayTransactions() {
                             <strong>From:</strong>
                             ${escapeHTML(
                                 transaction.allocation
-                            )}
-                        </div>`;
-
-                }
-
-
-                // ----------------------------------
-                // PERSON
-                // ----------------------------------
-
-                if (transaction.person) {
-
-                    extraInfo +=
-
-                        `<div>
-                            <strong>Person:</strong>
-                            ${escapeHTML(
-                                transaction.person
-                            )}
-                        </div>`;
-
-                }
-
-
-                // ----------------------------------
-                // DUE DATE
-                // ----------------------------------
-
-                if (transaction.dueDate) {
-
-                    extraInfo +=
-
-                        `<div>
-                            <strong>Due Date:</strong>
-                            ${formatDate(
-                                transaction.dueDate
                             )}
                         </div>`;
 
@@ -1063,7 +960,6 @@ function escapeHTML(text) {
 
 function editTransaction(id) {
 
-
     const transaction =
         transactions.find(
             item => item.id === id
@@ -1088,11 +984,6 @@ function editTransaction(id) {
     if (
         transaction.type === "Income"
     ) {
-
-
-        const oldTransaction =
-            { ...transaction };
-
 
         const amount =
             prompt(
@@ -1208,7 +1099,6 @@ function editTransaction(id) {
     if (
         transaction.type === "Expense"
     ) {
-
 
         const oldTransaction =
             { ...transaction };
@@ -1386,16 +1276,11 @@ function editTransaction(id) {
         rebuildDataFromTransactions();
 
 
-        // ----------------------------------
-        // VALIDATE
-        // ----------------------------------
-
         if (
             personalBalance < -0.001 ||
             emergencyBalance < -0.001 ||
             savingsBalance < -0.001
         ) {
-
 
             Object.assign(
                 transaction,
@@ -1433,11 +1318,6 @@ function editTransaction(id) {
     if (
         transaction.type === "Debit"
     ) {
-
-
-        const oldTransaction =
-            { ...transaction };
-
 
         const amount =
             prompt(
@@ -1510,70 +1390,6 @@ function editTransaction(id) {
         }
 
 
-        const person =
-            prompt(
-                "Enter Person Name:",
-                transaction.person || ""
-            );
-
-
-        if (
-            person === null ||
-            !person.trim()
-        ) {
-
-            return;
-
-        }
-
-
-        const dueDate =
-            prompt(
-
-                "Enter Due Date (DD-MM-YYYY) or leave blank:",
-
-                transaction.dueDate
-                    ? formatDate(
-                        transaction.dueDate
-                    )
-                    : ""
-
-            );
-
-
-        if (dueDate === null) {
-
-            return;
-
-        }
-
-
-        let storedDueDate = "";
-
-
-        if (dueDate.trim() !== "") {
-
-            storedDueDate =
-                convertDateToStorage(
-                    dueDate
-                );
-
-
-            if (!storedDueDate) {
-
-                alert(
-
-                    "Please enter due date in DD-MM-YYYY format.\nExample: 06-10-2026"
-
-                );
-
-                return;
-
-            }
-
-        }
-
-
         const purpose =
             prompt(
                 "Enter Debit Purpose:",
@@ -1597,18 +1413,11 @@ function editTransaction(id) {
         transaction.date =
             storedDate;
 
-        transaction.person =
-            person.trim();
-
-        transaction.dueDate =
-            storedDueDate;
-
         transaction.purpose =
             purpose.trim();
 
 
         rebuildDataFromTransactions();
-
 
         saveData();
 
@@ -1626,7 +1435,6 @@ function editTransaction(id) {
 // ==========================================
 
 function deleteTransaction(id) {
-
 
     const transaction =
         transactions.find(
@@ -1679,16 +1487,11 @@ function deleteTransaction(id) {
     rebuildDataFromTransactions();
 
 
-    // --------------------------------------
-    // SAFETY CHECK
-    // --------------------------------------
-
     if (
         personalBalance < -0.001 ||
         emergencyBalance < -0.001 ||
         savingsBalance < -0.001
     ) {
-
 
         transactions =
             oldTransactions;
@@ -1720,7 +1523,6 @@ function deleteTransaction(id) {
 // ==========================================
 
 function saveData() {
-
 
     rebuildDataFromTransactions();
 
@@ -1765,16 +1567,11 @@ function saveData() {
 
 function loadData() {
 
-
     const savedData =
         localStorage.getItem(
             "myFinanceTrackerData"
         );
 
-
-    // --------------------------------------
-    // FIRST TIME OPEN
-    // --------------------------------------
 
     if (!savedData) {
 
@@ -1788,7 +1585,6 @@ function loadData() {
 
 
     try {
-
 
         const data =
             JSON.parse(savedData);
@@ -1813,13 +1609,34 @@ function loadData() {
             );
 
 
+        // ----------------------------------
+        // Remove old Debit Person / Due Date
+        // information
+        // ----------------------------------
+
+        transactions.forEach(
+            transaction => {
+
+                if (
+                    transaction.type === "Debit"
+                ) {
+
+                    delete transaction.person;
+
+                    delete transaction.dueDate;
+
+                }
+
+            }
+        );
+
+
         rebuildDataFromTransactions();
 
     }
 
 
     catch (error) {
-
 
         console.error(
             "Data loading error:",
@@ -1894,9 +1711,6 @@ function convertDateToStorage(
 
     const monthNumber =
         Number(month);
-
-    const yearNumber =
-        Number(year);
 
 
     if (

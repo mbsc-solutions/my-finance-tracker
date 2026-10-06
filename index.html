@@ -34,6 +34,7 @@
             padding: 20px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             height: 100%;
+            background: white;
         }
 
         .dashboard-card h6 {
@@ -87,6 +88,10 @@
         .section-title {
             font-weight: bold;
             margin-bottom: 18px;
+        }
+
+        .pay-btn {
+            margin-top: 12px;
         }
 
     </style>
@@ -221,7 +226,9 @@
 <div class="row g-3 mt-4">
 
 
-    <div class="col-6 col-md-3">
+    <!-- INCOME -->
+
+    <div class="col-6 col-md-4">
 
         <button
             class="btn btn-success w-100 action-btn"
@@ -234,7 +241,9 @@
     </div>
 
 
-    <div class="col-6 col-md-3">
+    <!-- EXPENSE -->
+
+    <div class="col-6 col-md-4">
 
         <button
             class="btn btn-danger w-100 action-btn"
@@ -247,26 +256,15 @@
     </div>
 
 
-    <div class="col-6 col-md-3">
+    <!-- DEBIT -->
+
+    <div class="col-12 col-md-4">
 
         <button
             class="btn btn-warning w-100 action-btn"
             onclick="addDebitPrompt()">
 
             + Debit
-
-        </button>
-
-    </div>
-
-
-    <div class="col-6 col-md-3">
-
-        <button
-            class="btn btn-primary w-100 action-btn"
-            onclick="payDebitPrompt()">
-
-            Pay Debit
 
         </button>
 
@@ -287,6 +285,8 @@
 
 <div class="row g-3">
 
+
+    <!-- PERSONAL -->
 
     <div class="col-6 col-lg-4">
 
@@ -311,6 +311,8 @@
     </div>
 
 
+    <!-- EMERGENCY -->
+
     <div class="col-6 col-lg-4">
 
         <div class="allocation-card">
@@ -333,6 +335,8 @@
 
     </div>
 
+
+    <!-- SAVINGS -->
 
     <div class="col-6 col-lg-4">
 
@@ -357,6 +361,8 @@
     </div>
 
 
+    <!-- PPF -->
+
     <div class="col-6 col-lg-4">
 
         <div class="allocation-card">
@@ -379,6 +385,8 @@
 
     </div>
 
+
+    <!-- JAR -->
 
     <div class="col-6 col-lg-4">
 
@@ -458,9 +466,19 @@ function addIncomePrompt() {
     }
 
 
+    const source =
+        prompt(
+            "Income Source:"
+        );
+
+    if (source === null) {
+        return;
+    }
+
+
     const purpose =
         prompt(
-            "Income Purpose / Source:"
+            "Income Purpose:"
         );
 
     if (purpose === null) {
@@ -468,17 +486,11 @@ function addIncomePrompt() {
     }
 
 
-    const notes =
-        prompt(
-            "Notes (Optional):"
-        ) || "";
-
-
     addIncome(
         amount,
         date,
-        purpose,
-        notes
+        source,
+        purpose
     );
 
 }
@@ -508,9 +520,51 @@ function addExpensePrompt() {
     }
 
 
+    const allocationType =
+        prompt(
+            "Expense From Which Allocation?\n\n" +
+            "1 = Personal\n" +
+            "2 = Emergency\n" +
+            "3 = Savings\n\n" +
+            "Enter 1, 2 or 3:"
+        );
+
+    if (allocationType === null) {
+        return;
+    }
+
+
+    let selectedAllocation = "";
+
+
+    if (allocationType === "1") {
+
+        selectedAllocation = "Personal";
+
+    }
+    else if (allocationType === "2") {
+
+        selectedAllocation = "Emergency";
+
+    }
+    else if (allocationType === "3") {
+
+        selectedAllocation = "Savings";
+
+    }
+    else {
+
+        alert(
+            "Please enter only 1, 2 or 3."
+        );
+
+        return;
+    }
+
+
     const purpose =
         prompt(
-            "Expense Purpose / Reason:"
+            "Expense Purpose:"
         );
 
     if (purpose === null) {
@@ -518,17 +572,11 @@ function addExpensePrompt() {
     }
 
 
-    const notes =
-        prompt(
-            "Notes (Optional):"
-        ) || "";
-
-
     addExpense(
         amount,
         date,
-        purpose,
-        notes
+        selectedAllocation,
+        purpose
     );
 
 }
@@ -541,7 +589,9 @@ function addExpensePrompt() {
 function addDebitPrompt() {
 
     const amount =
-        prompt("Enter New Debit Amount:");
+        prompt(
+            "Enter New Debit Amount:"
+        );
 
     if (amount === null) {
         return;
@@ -576,14 +626,12 @@ function addDebitPrompt() {
 
     const purpose =
         prompt(
-            "Debit Purpose - Optional:"
-        ) || "";
+            "Debit Purpose:"
+        );
 
-
-    const notes =
-        prompt(
-            "Notes - Optional:"
-        ) || "";
+    if (purpose === null) {
+        return;
+    }
 
 
     addDebit(
@@ -591,21 +639,26 @@ function addDebitPrompt() {
         date,
         person,
         dueDate,
-        purpose,
-        notes
+        purpose
     );
 
 }
 
 
 // =====================================
-// PAY DEBIT PROMPT
+// PAY DEBIT
+// =====================================
+// Payment is available from Debit history.
+// It is NOT a separate dashboard button.
+// Payment will be deducted from PPF.
 // =====================================
 
-function payDebitPrompt() {
+function payDebitPrompt(person = "") {
 
     const amount =
-        prompt("Enter Debit Payment Amount:");
+        prompt(
+            "Enter Debit Payment Amount:"
+        );
 
     if (amount === null) {
         return;
@@ -622,30 +675,29 @@ function payDebitPrompt() {
     }
 
 
-    const person =
+    const paymentPerson =
+        person ||
         prompt(
             "Person / Company Name - Optional:"
-        ) || "";
+        ) ||
+        "";
 
 
     const purpose =
         prompt(
-            "Payment Purpose - Optional:"
-        ) || "";
+            "Payment Purpose:"
+        );
 
-
-    const notes =
-        prompt(
-            "Notes - Optional:"
-        ) || "";
+    if (purpose === null) {
+        return;
+    }
 
 
     payDebit(
         amount,
         date,
-        person,
-        purpose,
-        notes
+        paymentPerson,
+        purpose
     );
 
 }

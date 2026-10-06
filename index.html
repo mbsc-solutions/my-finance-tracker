@@ -63,6 +63,10 @@
             color: white;
         }
 
+        button:hover {
+            opacity: 0.9;
+        }
+
         .incomeBtn {
             background: #16a34a;
         }
@@ -133,7 +137,7 @@
 
         .allocation {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 12px;
         }
 
@@ -141,17 +145,62 @@
             background: #f8fafc;
             padding: 16px;
             border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .allocation span {
+            display: block;
+            color: #475569;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .allocation .percentage {
+            display: block;
+            margin-top: 5px;
+            color: #64748b;
+            font-size: 13px;
         }
 
         .allocation strong {
             display: block;
             margin-top: 8px;
-            font-size: 20px;
+            font-size: 22px;
+        }
+
+        .personalBox {
+            border-left: 5px solid #16a34a;
+        }
+
+        .emergencyBox {
+            border-left: 5px solid #f59e0b;
+        }
+
+        .savingsBox {
+            border-left: 5px solid #2563eb;
+        }
+
+        .ppfBox {
+            border-left: 5px solid #7c3aed;
+        }
+
+        .jarBox {
+            border-left: 5px solid #ec4899;
         }
 
         .info {
             margin-top: 15px;
             color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .expenseInfo {
+            margin-top: 10px;
+            padding: 12px;
+            background: #fff7ed;
+            border-radius: 10px;
+            color: #9a3412;
             font-size: 14px;
         }
 
@@ -167,6 +216,10 @@
 
             .amount {
                 font-size: 22px;
+            }
+
+            .allocation {
+                grid-template-columns: 1fr 1fr;
             }
 
         }
@@ -185,7 +238,11 @@
 
 </header>
 
+
 <div class="container">
+
+
+    <!-- ACTION BUTTONS -->
 
     <div class="buttons">
 
@@ -195,17 +252,20 @@
             + Add Income
         </button>
 
+
         <button
             class="expenseBtn"
             onclick="addExpensePrompt()">
             + Add Expense
         </button>
 
+
         <button
             class="debitBtn"
             onclick="addDebitPrompt()">
             + Add Debit
         </button>
+
 
         <button
             class="payBtn"
@@ -215,116 +275,254 @@
 
     </div>
 
+
+    <!-- DASHBOARD -->
+
     <div class="cards">
 
+
         <div class="card">
+
             <h3>Total Income</h3>
-            <div class="amount income">₹0</div>
+
+            <div
+                id="totalIncome"
+                class="amount income">
+                ₹0.00
+            </div>
+
         </div>
 
+
         <div class="card">
+
             <h3>Total Expenses</h3>
-            <div class="amount expense">₹0</div>
+
+            <div
+                id="totalExpenses"
+                class="amount expense">
+                ₹0.00
+            </div>
+
         </div>
 
+
         <div class="card">
+
             <h3>Debit Outstanding</h3>
-            <div class="amount debit">₹0</div>
+
+            <div
+                id="debitOutstanding"
+                class="amount debit">
+                ₹0.00
+            </div>
+
         </div>
 
+
         <div class="card">
+
             <h3>Available Balance</h3>
-            <div class="amount balance">₹0</div>
+
+            <div
+                id="availableBalance"
+                class="amount balance">
+                ₹0.00
+            </div>
+
         </div>
 
     </div>
+
+
+    <!-- INCOME ALLOCATION -->
 
     <div class="section">
 
         <h2>💰 Income Allocation</h2>
 
+
         <div class="allocation">
 
-            <div>
-                Personal
-                <strong>30%</strong>
+
+            <div class="personalBox">
+
+                <span>Personal</span>
+
+                <div class="percentage">
+                    30%
+                </div>
+
+                <strong id="personalAmount">
+                    ₹0.00
+                </strong>
+
             </div>
 
-            <div>
-                Emergency
-                <strong>20%</strong>
+
+            <div class="emergencyBox">
+
+                <span>Emergency</span>
+
+                <div class="percentage">
+                    20%
+                </div>
+
+                <strong id="emergencyAmount">
+                    ₹0.00
+                </strong>
+
             </div>
 
-            <div>
-                Savings
-                <strong>20%</strong>
+
+            <div class="savingsBox">
+
+                <span>Savings</span>
+
+                <div class="percentage">
+                    20%
+                </div>
+
+                <strong id="savingsAmount">
+                    ₹0.00
+                </strong>
+
             </div>
 
-            <div>
-                PPF
-                <strong>20%</strong>
+
+            <div class="ppfBox">
+
+                <span>PPF</span>
+
+                <div class="percentage">
+                    20%
+                </div>
+
+                <strong id="ppfAmount">
+                    ₹0.00
+                </strong>
+
             </div>
 
-            <div>
-                Jar
-                <strong>10%</strong>
+
+            <div class="jarBox">
+
+                <span>Jar</span>
+
+                <div class="percentage">
+                    10%
+                </div>
+
+                <strong id="jarAmount">
+                    ₹0.00
+                </strong>
+
             </div>
+
 
         </div>
 
+
         <div class="info">
-            Income will automatically be divided according to these percentages.
+
+            Every new income is automatically divided:
+            Personal 30% • Emergency 20% • Savings 20% • PPF 20% • Jar 10%.
+
+        </div>
+
+
+        <div class="expenseInfo">
+
+            💡 Expenses are deducted from the <b>Personal</b> allocation.
+
         </div>
 
     </div>
 
+
 </div>
+
 
 <script src="app.js"></script>
 
+
 <script>
+
+
+// =========================
+// INCOME PROMPT
+// =========================
 
 function addIncomePrompt() {
 
-    const amount = prompt("Enter Income Amount:");
+    const amount =
+        prompt("Enter Income Amount:");
 
     if (amount !== null) {
+
         addIncome(amount);
+
     }
 
 }
+
+
+// =========================
+// EXPENSE PROMPT
+// =========================
 
 function addExpensePrompt() {
 
-    const amount = prompt("Enter Expense Amount:");
+    const amount =
+        prompt("Enter Personal Expense Amount:");
 
     if (amount !== null) {
+
         addExpense(amount);
+
     }
 
 }
+
+
+// =========================
+// DEBIT PROMPT
+// =========================
 
 function addDebitPrompt() {
 
-    const amount = prompt("Enter Debit Amount:");
+    const amount =
+        prompt("Enter Debit Amount:");
 
     if (amount !== null) {
+
         addDebit(amount);
+
     }
 
 }
+
+
+// =========================
+// PAY DEBIT PROMPT
+// =========================
 
 function payDebitPrompt() {
 
-    const amount = prompt("Enter Paid Debit Amount:");
+    const amount =
+        prompt("Enter Paid Debit Amount:");
 
     if (amount !== null) {
+
         payDebit(amount);
+
     }
 
 }
 
+
 </script>
+
 
 </body>
 

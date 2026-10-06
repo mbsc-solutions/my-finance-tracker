@@ -43,7 +43,6 @@ let jarBalance = 0;
 
 let totalIncome = 0;
 let totalExpenses = 0;
-let totalDebitPaid = 0;
 
 
 // ==========================================
@@ -60,30 +59,30 @@ let transactions = [];
 function addIncome(
     amount,
     date,
-    source,
     purpose
 ) {
 
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
+
         alert("Please enter a valid income amount.");
         return;
+
     }
 
     if (!date) {
-        alert("Please select income date.");
-        return;
-    }
 
-    if (!source || source.trim() === "") {
-        alert("Please enter income source.");
+        alert("Please enter income date.");
         return;
+
     }
 
     if (!purpose || purpose.trim() === "") {
+
         alert("Please enter income purpose.");
         return;
+
     }
 
     transactions.push({
@@ -95,8 +94,6 @@ function addIncome(
         amount: amount,
 
         date: date,
-
-        source: source.trim(),
 
         purpose: purpose.trim()
 
@@ -129,13 +126,15 @@ function addExpense(
         alert("Please enter a valid expense amount.");
 
         return;
+
     }
 
     if (!date) {
 
-        alert("Please select expense date.");
+        alert("Please enter expense date.");
 
         return;
+
     }
 
     if (
@@ -149,6 +148,7 @@ function addExpense(
         );
 
         return;
+
     }
 
     if (!purpose || purpose.trim() === "") {
@@ -156,6 +156,7 @@ function addExpense(
         alert("Please enter expense purpose.");
 
         return;
+
     }
 
 
@@ -175,13 +176,11 @@ function addExpense(
 
     }
 
-
     if (allocationType === "Emergency") {
 
         availableBalance = emergencyBalance;
 
     }
-
 
     if (allocationType === "Savings") {
 
@@ -203,6 +202,7 @@ function addExpense(
         );
 
         return;
+
     }
 
 
@@ -255,13 +255,15 @@ function addDebit(
         alert("Please enter a valid debit amount.");
 
         return;
+
     }
 
     if (!date) {
 
-        alert("Please select debit date.");
+        alert("Please enter debit date.");
 
         return;
+
     }
 
     if (!person || person.trim() === "") {
@@ -269,6 +271,7 @@ function addDebit(
         alert("Please enter person name.");
 
         return;
+
     }
 
     if (!purpose || purpose.trim() === "") {
@@ -276,6 +279,7 @@ function addDebit(
         alert("Please enter debit purpose.");
 
         return;
+
     }
 
 
@@ -308,132 +312,7 @@ function addDebit(
 
 
 // ==========================================
-// PAY DEBIT
-// ==========================================
-// Debit payment is taken ONLY from PPF
-// ==========================================
-
-function payDebit(
-    amount,
-    date,
-    person,
-    purpose
-) {
-
-    amount = Number(amount);
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-
-        alert("Please enter a valid payment amount.");
-
-        return;
-    }
-
-    if (!date) {
-
-        alert("Please select payment date.");
-
-        return;
-    }
-
-    if (!purpose || purpose.trim() === "") {
-
-        alert("Please enter payment purpose.");
-
-        return;
-    }
-
-
-    rebuildDataFromTransactions();
-
-
-    // --------------------------------------
-    // CHECK DEBIT
-    // --------------------------------------
-
-    if (debitOutstanding <= 0) {
-
-        alert("No outstanding debit.");
-
-        return;
-    }
-
-
-    // --------------------------------------
-    // PAYMENT CANNOT EXCEED DEBIT
-    // --------------------------------------
-
-    if (amount > debitOutstanding + 0.001) {
-
-        alert(
-
-            "Payment cannot be greater than outstanding debit.\n\n" +
-
-            "Outstanding Debit: ₹" +
-            debitOutstanding.toFixed(2)
-
-        );
-
-        return;
-    }
-
-
-    // --------------------------------------
-    // PAYMENT CANNOT EXCEED PPF
-    // --------------------------------------
-
-    if (amount > ppfBalance + 0.001) {
-
-        alert(
-
-            "PPF balance lo sufficient amount ledu.\n\n" +
-
-            "Available PPF Balance: ₹" +
-            ppfBalance.toFixed(2)
-
-        );
-
-        return;
-    }
-
-
-    // --------------------------------------
-    // ADD DEBIT PAYMENT
-    // --------------------------------------
-
-    transactions.push({
-
-        id: Date.now(),
-
-        type: "Debit Payment",
-
-        amount: amount,
-
-        date: date,
-
-        person: person
-            ? person.trim()
-            : "",
-
-        purpose: purpose.trim()
-
-    });
-
-
-    rebuildDataFromTransactions();
-
-    saveData();
-
-    updateDashboard();
-
-}
-
-
-// ==========================================
 // REBUILD ALL DATA
-// ==========================================
-// Everything is calculated again from
-// transaction history.
 // ==========================================
 
 function rebuildDataFromTransactions() {
@@ -462,8 +341,6 @@ function rebuildDataFromTransactions() {
 
     totalExpenses = 0;
 
-    totalDebitPaid = 0;
-
 
     // --------------------------------------
     // RESET DEBIT
@@ -478,7 +355,6 @@ function rebuildDataFromTransactions() {
 
     transactions.forEach(transaction => {
 
-
         const amount =
             Number(transaction.amount) || 0;
 
@@ -488,11 +364,6 @@ function rebuildDataFromTransactions() {
         // ==================================
 
         if (transaction.type === "Income") {
-
-
-            // IMPORTANT:
-            // Total Income is actual income.
-            // Expenses will NOT reduce it.
 
             totalIncome += amount;
 
@@ -539,13 +410,8 @@ function rebuildDataFromTransactions() {
 
         if (transaction.type === "Expense") {
 
-
             totalExpenses += amount;
 
-
-            // ----------------------------------
-            // PERSONAL EXPENSE
-            // ----------------------------------
 
             if (
                 transaction.allocation === "Personal"
@@ -556,10 +422,6 @@ function rebuildDataFromTransactions() {
             }
 
 
-            // ----------------------------------
-            // EMERGENCY EXPENSE
-            // ----------------------------------
-
             if (
                 transaction.allocation === "Emergency"
             ) {
@@ -569,10 +431,6 @@ function rebuildDataFromTransactions() {
             }
 
 
-            // ----------------------------------
-            // SAVINGS EXPENSE
-            // ----------------------------------
-
             if (
                 transaction.allocation === "Savings"
             ) {
@@ -581,8 +439,6 @@ function rebuildDataFromTransactions() {
 
             }
 
-
-            // IMPORTANT:
             // PPF and Jar are NOT reduced
             // by normal expenses.
 
@@ -601,29 +457,13 @@ function rebuildDataFromTransactions() {
 
 
         // ==================================
-        // DEBIT PAYMENT
+        // OLD DEBIT PAYMENT RECORDS
         // ==================================
-
-        if (
-            transaction.type === "Debit Payment"
-        ) {
-
-
-            // Reduce outstanding debit
-
-            debitOutstanding -= amount;
-
-
-            // Payment comes ONLY from PPF
-
-            ppfBalance -= amount;
-
-
-            // Total debit payment
-
-            totalDebitPaid += amount;
-
-        }
+        // Old "Debit Payment" records are
+        // intentionally ignored.
+        //
+        // This prevents old Pay Debit records
+        // from affecting the new app logic.
 
     });
 
@@ -668,8 +508,6 @@ function rebuildDataFromTransactions() {
 // ==========================================
 // AVAILABLE BALANCE
 // ==========================================
-// Only Personal + Emergency + Savings
-// ==========================================
 
 function getAvailableBalance() {
 
@@ -687,15 +525,48 @@ function getAvailableBalance() {
 
 
 // ==========================================
+// DATE FORMAT
+// YYYY-MM-DD → DD-MM-YYYY
+// ==========================================
+
+function formatDate(dateString) {
+
+    if (!dateString) {
+
+        return "-";
+
+    }
+
+    const parts =
+        String(dateString).split("-");
+
+
+    if (parts.length === 3) {
+
+        return (
+
+            parts[2] +
+            "-" +
+            parts[1] +
+            "-" +
+            parts[0]
+
+        );
+
+    }
+
+
+    return dateString;
+
+}
+
+
+// ==========================================
 // UPDATE DASHBOARD
 // ==========================================
 
 function updateDashboard() {
 
-
-    // --------------------------------------
-    // RECALCULATE
-    // --------------------------------------
 
     rebuildDataFromTransactions();
 
@@ -752,8 +623,10 @@ function updateDashboard() {
 
         debitElement.textContent =
             "₹" +
-            Math.max(0, debitOutstanding)
-                .toFixed(2);
+            Math.max(
+                0,
+                debitOutstanding
+            ).toFixed(2);
 
     }
 
@@ -791,8 +664,10 @@ function updateDashboard() {
 
         personalElement.textContent =
             "₹" +
-            Math.max(0, personalBalance)
-                .toFixed(2);
+            Math.max(
+                0,
+                personalBalance
+            ).toFixed(2);
 
     }
 
@@ -811,8 +686,10 @@ function updateDashboard() {
 
         emergencyElement.textContent =
             "₹" +
-            Math.max(0, emergencyBalance)
-                .toFixed(2);
+            Math.max(
+                0,
+                emergencyBalance
+            ).toFixed(2);
 
     }
 
@@ -831,8 +708,10 @@ function updateDashboard() {
 
         savingsElement.textContent =
             "₹" +
-            Math.max(0, savingsBalance)
-                .toFixed(2);
+            Math.max(
+                0,
+                savingsBalance
+            ).toFixed(2);
 
     }
 
@@ -851,8 +730,10 @@ function updateDashboard() {
 
         ppfElement.textContent =
             "₹" +
-            Math.max(0, ppfBalance)
-                .toFixed(2);
+            Math.max(
+                0,
+                ppfBalance
+            ).toFixed(2);
 
     }
 
@@ -871,8 +752,10 @@ function updateDashboard() {
 
         jarElement.textContent =
             "₹" +
-            Math.max(0, jarBalance)
-                .toFixed(2);
+            Math.max(
+                0,
+                jarBalance
+            ).toFixed(2);
 
     }
 
@@ -920,21 +803,27 @@ function displayTransactions() {
     // --------------------------------------
 
     const sortedTransactions =
-        [...transactions].sort(
+        [...transactions]
+            .filter(transaction =>
+                transaction.type === "Income" ||
+                transaction.type === "Expense" ||
+                transaction.type === "Debit"
+            )
+            .sort(
 
-            (a, b) => {
+                (a, b) => {
 
-                const dateA =
-                    new Date(a.date);
+                    const dateA =
+                        new Date(a.date);
 
-                const dateB =
-                    new Date(b.date);
+                    const dateB =
+                        new Date(b.date);
 
-                return dateB - dateA;
+                    return dateB - dateA;
 
-            }
+                }
 
-        );
+            );
 
 
     // --------------------------------------
@@ -951,22 +840,6 @@ function displayTransactions() {
 
 
                 // ----------------------------------
-                // SOURCE
-                // ----------------------------------
-
-                if (transaction.source) {
-
-                    extraInfo +=
-
-                        `<div>
-                            <strong>Source:</strong>
-                            ${escapeHTML(transaction.source)}
-                        </div>`;
-
-                }
-
-
-                // ----------------------------------
                 // ALLOCATION
                 // ----------------------------------
 
@@ -976,7 +849,9 @@ function displayTransactions() {
 
                         `<div>
                             <strong>From:</strong>
-                            ${escapeHTML(transaction.allocation)}
+                            ${escapeHTML(
+                                transaction.allocation
+                            )}
                         </div>`;
 
                 }
@@ -992,7 +867,9 @@ function displayTransactions() {
 
                         `<div>
                             <strong>Person:</strong>
-                            ${escapeHTML(transaction.person)}
+                            ${escapeHTML(
+                                transaction.person
+                            )}
                         </div>`;
 
                 }
@@ -1008,17 +885,19 @@ function displayTransactions() {
 
                         `<div>
                             <strong>Due Date:</strong>
-                            ${escapeHTML(transaction.dueDate)}
+                            ${formatDate(
+                                transaction.dueDate
+                            )}
                         </div>`;
 
                 }
 
 
                 // ----------------------------------
-                // EDIT + DELETE
+                // ACTION BUTTONS
                 // ----------------------------------
 
-                let actionButtons = `
+                const actionButtons = `
 
                     <div class="mt-3 d-flex gap-2 flex-wrap">
 
@@ -1045,64 +924,30 @@ function displayTransactions() {
 
 
                 // ----------------------------------
-                // PAY DEBIT
-                // ----------------------------------
-
-                let payButton = "";
-
-
-                if (
-                    transaction.type === "Debit" &&
-                    debitOutstanding > 0
-                ) {
-
-                    const safePerson =
-                        escapeForAttribute(
-                            transaction.person || ""
-                        );
-
-
-                    payButton = `
-
-                        <div class="mt-2">
-
-                            <button
-                                class="btn btn-primary btn-sm pay-btn"
-                                onclick="payDebitPrompt('${safePerson}')">
-
-                                💳 Pay Debit
-
-                            </button>
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                // ----------------------------------
-                // TYPE
+                // TYPE CLASS
                 // ----------------------------------
 
                 let typeClass = "";
 
 
-                if (transaction.type === "Income") {
+                if (
+                    transaction.type === "Income"
+                ) {
 
                     typeClass = "text-success";
 
                 }
 
-                else if (transaction.type === "Expense") {
+                else if (
+                    transaction.type === "Expense"
+                ) {
 
                     typeClass = "text-danger";
 
                 }
 
                 else if (
-                    transaction.type === "Debit" ||
-                    transaction.type === "Debit Payment"
+                    transaction.type === "Debit"
                 ) {
 
                     typeClass = "text-primary";
@@ -1122,7 +967,9 @@ function displayTransactions() {
 
                             <strong class="${typeClass}">
 
-                                ${escapeHTML(transaction.type)}
+                                ${escapeHTML(
+                                    transaction.type
+                                )}
 
                             </strong>
 
@@ -1141,7 +988,9 @@ function displayTransactions() {
                         <div>
 
                             <strong>Date:</strong>
-                            ${escapeHTML(transaction.date)}
+                            ${formatDate(
+                                transaction.date
+                            )}
 
                         </div>
 
@@ -1157,9 +1006,6 @@ function displayTransactions() {
 
 
                         ${extraInfo}
-
-
-                        ${payButton}
 
 
                         ${actionButtons}
@@ -1182,25 +1028,31 @@ function displayTransactions() {
 function escapeHTML(text) {
 
     return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
 
-}
+        .replace(
+            /&/g,
+            "&amp;"
+        )
 
+        .replace(
+            /</g,
+            "&lt;"
+        )
 
-// ==========================================
-// ESCAPE TEXT FOR BUTTON ATTRIBUTE
-// ==========================================
+        .replace(
+            />/g,
+            "&gt;"
+        )
 
-function escapeForAttribute(text) {
+        .replace(
+            /"/g,
+            "&quot;"
+        )
 
-    return String(text)
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/"/g, "&quot;");
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
@@ -1220,7 +1072,9 @@ function editTransaction(id) {
 
     if (!transaction) {
 
-        alert("Transaction not found.");
+        alert(
+            "Transaction not found."
+        );
 
         return;
 
@@ -1231,7 +1085,9 @@ function editTransaction(id) {
     // EDIT INCOME
     // ======================================
 
-    if (transaction.type === "Income") {
+    if (
+        transaction.type === "Income"
+    ) {
 
 
         const oldTransaction =
@@ -1272,29 +1128,35 @@ function editTransaction(id) {
 
         const date =
             prompt(
-                "Enter Income Date (YYYY-MM-DD):",
-                transaction.date
+
+                "Enter Income Date (DD-MM-YYYY):",
+
+                formatDate(
+                    transaction.date
+                )
+
             );
 
 
-        if (date === null || !date) {
+        if (
+            date === null ||
+            !date
+        ) {
 
             return;
 
         }
 
 
-        const source =
-            prompt(
-                "Enter Income Source:",
-                transaction.source || ""
+        const storedDate =
+            convertDateToStorage(date);
+
+
+        if (!storedDate) {
+
+            alert(
+                "Please enter date in DD-MM-YYYY format.\nExample: 06-10-2026"
             );
-
-
-        if (
-            source === null ||
-            !source.trim()
-        ) {
 
             return;
 
@@ -1322,10 +1184,7 @@ function editTransaction(id) {
             newAmount;
 
         transaction.date =
-            date;
-
-        transaction.source =
-            source.trim();
+            storedDate;
 
         transaction.purpose =
             purpose.trim();
@@ -1346,7 +1205,9 @@ function editTransaction(id) {
     // EDIT EXPENSE
     // ======================================
 
-    if (transaction.type === "Expense") {
+    if (
+        transaction.type === "Expense"
+    ) {
 
 
         const oldTransaction =
@@ -1387,12 +1248,35 @@ function editTransaction(id) {
 
         const date =
             prompt(
-                "Enter Expense Date (YYYY-MM-DD):",
-                transaction.date
+
+                "Enter Expense Date (DD-MM-YYYY):",
+
+                formatDate(
+                    transaction.date
+                )
+
             );
 
 
-        if (date === null || !date) {
+        if (
+            date === null ||
+            !date
+        ) {
+
+            return;
+
+        }
+
+
+        const storedDate =
+            convertDateToStorage(date);
+
+
+        if (!storedDate) {
+
+            alert(
+                "Please enter date in DD-MM-YYYY format.\nExample: 06-10-2026"
+            );
 
             return;
 
@@ -1486,15 +1370,11 @@ function editTransaction(id) {
         }
 
 
-        // ----------------------------------
-        // UPDATE TEMPORARILY
-        // ----------------------------------
-
         transaction.amount =
             newAmount;
 
         transaction.date =
-            date;
+            storedDate;
 
         transaction.allocation =
             newAllocation;
@@ -1527,9 +1407,10 @@ function editTransaction(id) {
 
 
             alert(
-                "This edit cannot be completed because the selected allocation does not have sufficient balance."
-            );
 
+                "This edit cannot be completed because the selected allocation does not have sufficient balance."
+
+            );
 
             return;
 
@@ -1549,7 +1430,9 @@ function editTransaction(id) {
     // EDIT DEBIT
     // ======================================
 
-    if (transaction.type === "Debit") {
+    if (
+        transaction.type === "Debit"
+    ) {
 
 
         const oldTransaction =
@@ -1590,12 +1473,37 @@ function editTransaction(id) {
 
         const date =
             prompt(
-                "Enter Debit Date (YYYY-MM-DD):",
-                transaction.date
+
+                "Enter Debit Date (DD-MM-YYYY):",
+
+                formatDate(
+                    transaction.date
+                )
+
             );
 
 
-        if (date === null || !date) {
+        if (
+            date === null ||
+            !date
+        ) {
+
+            return;
+
+        }
+
+
+        const storedDate =
+            convertDateToStorage(date);
+
+
+        if (!storedDate) {
+
+            alert(
+
+                "Please enter date in DD-MM-YYYY format.\nExample: 06-10-2026"
+
+            );
 
             return;
 
@@ -1621,14 +1529,47 @@ function editTransaction(id) {
 
         const dueDate =
             prompt(
-                "Enter Due Date (YYYY-MM-DD) or leave blank:",
-                transaction.dueDate || ""
+
+                "Enter Due Date (DD-MM-YYYY) or leave blank:",
+
+                transaction.dueDate
+                    ? formatDate(
+                        transaction.dueDate
+                    )
+                    : ""
+
             );
 
 
         if (dueDate === null) {
 
             return;
+
+        }
+
+
+        let storedDueDate = "";
+
+
+        if (dueDate.trim() !== "") {
+
+            storedDueDate =
+                convertDateToStorage(
+                    dueDate
+                );
+
+
+            if (!storedDueDate) {
+
+                alert(
+
+                    "Please enter due date in DD-MM-YYYY format.\nExample: 06-10-2026"
+
+                );
+
+                return;
+
+            }
 
         }
 
@@ -1654,213 +1595,19 @@ function editTransaction(id) {
             newAmount;
 
         transaction.date =
-            date;
+            storedDate;
 
         transaction.person =
             person.trim();
 
         transaction.dueDate =
-            dueDate;
+            storedDueDate;
 
         transaction.purpose =
             purpose.trim();
 
 
         rebuildDataFromTransactions();
-
-
-        // ----------------------------------
-        // VALIDATE DEBIT
-        // ----------------------------------
-
-        if (debitOutstanding < -0.001) {
-
-
-            Object.assign(
-                transaction,
-                oldTransaction
-            );
-
-
-            rebuildDataFromTransactions();
-
-
-            alert(
-                "Debit edit is not possible because existing payments are greater than the new debit amount."
-            );
-
-
-            return;
-
-        }
-
-
-        saveData();
-
-        updateDashboard();
-
-        return;
-
-    }
-
-
-    // ======================================
-    // EDIT DEBIT PAYMENT
-    // ======================================
-
-    if (
-        transaction.type ===
-        "Debit Payment"
-    ) {
-
-
-        const oldTransaction =
-            { ...transaction };
-
-
-        const amount =
-            prompt(
-                "Enter new Debit Payment Amount:",
-                transaction.amount
-            );
-
-
-        if (amount === null) {
-
-            return;
-
-        }
-
-
-        const newAmount =
-            Number(amount);
-
-
-        if (
-            !Number.isFinite(newAmount) ||
-            newAmount <= 0
-        ) {
-
-            alert(
-                "Please enter a valid payment amount."
-            );
-
-            return;
-
-        }
-
-
-        const date =
-            prompt(
-                "Enter Payment Date (YYYY-MM-DD):",
-                transaction.date
-            );
-
-
-        if (date === null || !date) {
-
-            return;
-
-        }
-
-
-        const person =
-            prompt(
-                "Enter Person Name:",
-                transaction.person || ""
-            );
-
-
-        if (person === null) {
-
-            return;
-
-        }
-
-
-        const purpose =
-            prompt(
-                "Enter Payment Purpose:",
-                transaction.purpose || ""
-            );
-
-
-        if (
-            purpose === null ||
-            !purpose.trim()
-        ) {
-
-            return;
-
-        }
-
-
-        transaction.amount =
-            newAmount;
-
-        transaction.date =
-            date;
-
-        transaction.person =
-            person.trim();
-
-        transaction.purpose =
-            purpose.trim();
-
-
-        rebuildDataFromTransactions();
-
-
-        // ----------------------------------
-        // CHECK DEBIT
-        // ----------------------------------
-
-        if (debitOutstanding < -0.001) {
-
-
-            Object.assign(
-                transaction,
-                oldTransaction
-            );
-
-
-            rebuildDataFromTransactions();
-
-
-            alert(
-                "Payment cannot be greater than the available debit."
-            );
-
-
-            return;
-
-        }
-
-
-        // ----------------------------------
-        // CHECK PPF
-        // ----------------------------------
-
-        if (ppfBalance < -0.001) {
-
-
-            Object.assign(
-                transaction,
-                oldTransaction
-            );
-
-
-            rebuildDataFromTransactions();
-
-
-            alert(
-                "This payment cannot be completed because PPF balance is insufficient."
-            );
-
-
-            return;
-
-        }
 
 
         saveData();
@@ -1939,9 +1686,7 @@ function deleteTransaction(id) {
     if (
         personalBalance < -0.001 ||
         emergencyBalance < -0.001 ||
-        savingsBalance < -0.001 ||
-        ppfBalance < -0.001 ||
-        debitOutstanding < -0.001
+        savingsBalance < -0.001
     ) {
 
 
@@ -1953,9 +1698,10 @@ function deleteTransaction(id) {
 
 
         alert(
-            "This transaction cannot be deleted because other transactions depend on it."
-        );
 
+            "This transaction cannot be deleted because other transactions depend on it."
+
+        );
 
         return;
 
@@ -1986,8 +1732,6 @@ function saveData() {
         totalIncome,
 
         totalExpenses,
-
-        totalDebitPaid,
 
         personalBalance,
 
@@ -2059,8 +1803,15 @@ function loadData() {
 
 
         // ----------------------------------
-        // Rebuild from transaction history
+        // Remove old Debit Payment records
         // ----------------------------------
+
+        transactions =
+            transactions.filter(
+                transaction =>
+                    transaction.type !== "Debit Payment"
+            );
+
 
         rebuildDataFromTransactions();
 
@@ -2085,6 +1836,90 @@ function loadData() {
 
 
     updateDashboard();
+
+}
+
+
+// ==========================================
+// CONVERT DD-MM-YYYY TO YYYY-MM-DD
+// ==========================================
+
+function convertDateToStorage(
+    dateString
+) {
+
+    if (!dateString) {
+
+        return "";
+
+    }
+
+
+    const parts =
+        String(dateString)
+            .trim()
+            .split("-");
+
+
+    if (parts.length !== 3) {
+
+        return "";
+
+    }
+
+
+    const day =
+        parts[0];
+
+    const month =
+        parts[1];
+
+    const year =
+        parts[2];
+
+
+    if (
+        !/^\d{2}$/.test(day) ||
+        !/^\d{2}$/.test(month) ||
+        !/^\d{4}$/.test(year)
+    ) {
+
+        return "";
+
+    }
+
+
+    const dayNumber =
+        Number(day);
+
+    const monthNumber =
+        Number(month);
+
+    const yearNumber =
+        Number(year);
+
+
+    if (
+        monthNumber < 1 ||
+        monthNumber > 12 ||
+        dayNumber < 1 ||
+        dayNumber > 31
+    ) {
+
+        return "";
+
+    }
+
+
+    return (
+
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+
+    );
 
 }
 

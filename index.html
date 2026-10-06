@@ -10,324 +10,137 @@
 
     <title>My Finance Tracker</title>
 
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
     <style>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        body {
+            background: #f4f7fb;
             font-family: Arial, sans-serif;
         }
 
-        body {
-            background: #f1f5f9;
-            color: #1e293b;
-        }
-
-        .header {
-            background: #0f172a;
+        .app-header {
+            background: #111827;
             color: white;
             padding: 25px 15px;
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 28px;
-        }
-
-        .header p {
-            margin-top: 6px;
-            color: #cbd5e1;
-        }
-
-        .container {
-            max-width: 1150px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        button {
+        .dashboard-card {
             border: none;
-            padding: 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .incomeBtn {
-            background: #16a34a;
-        }
-
-        .expenseBtn {
-            background: #dc2626;
-        }
-
-        .debitBtn {
-            background: #ea580c;
-        }
-
-        .payBtn {
-            background: #2563eb;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .card {
-            background: white;
+            border-radius: 18px;
             padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            height: 100%;
         }
 
-        .card h3 {
-            font-size: 14px;
-            color: #64748b;
+        .dashboard-card h6 {
+            color: #6b7280;
             margin-bottom: 10px;
         }
 
         .amount {
-            font-size: 26px;
+            font-size: 25px;
             font-weight: bold;
         }
 
         .income {
-            color: #16a34a;
+            color: #198754;
         }
 
         .expense {
-            color: #dc2626;
+            color: #dc3545;
         }
 
         .debit {
-            color: #ea580c;
+            color: #fd7e14;
         }
 
         .balance {
-            color: #2563eb;
+            color: #0d6efd;
         }
 
-        .section {
-            background: white;
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.08);
-        }
-
-        .section h2 {
-            margin-bottom: 15px;
-        }
-
-        .allocation {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-        }
-
-        .allocation div {
-            background: #f8fafc;
-            padding: 16px;
+        .action-btn {
             border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .allocation span {
-            display: block;
-            color: #475569;
-            font-size: 15px;
+            padding: 14px;
             font-weight: bold;
         }
 
-        .allocation .percentage {
-            display: block;
-            margin-top: 5px;
-            color: #64748b;
-            font-size: 13px;
+        .allocation-card {
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+            background: white;
         }
 
-        .allocation strong {
-            display: block;
-            margin-top: 8px;
-            font-size: 22px;
+        .transaction-item {
+            background: white;
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
         }
 
-        .personalBox {
-            border-left: 5px solid #16a34a;
-        }
-
-        .emergencyBox {
-            border-left: 5px solid #f59e0b;
-        }
-
-        .savingsBox {
-            border-left: 5px solid #2563eb;
-        }
-
-        .ppfBox {
-            border-left: 5px solid #7c3aed;
-        }
-
-        .jarBox {
-            border-left: 5px solid #ec4899;
-        }
-
-        .info {
-            margin-top: 15px;
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .expenseInfo {
-            margin-top: 10px;
-            padding: 12px;
-            background: #fff7ed;
-            border-radius: 10px;
-            color: #9a3412;
-            font-size: 14px;
-        }
-
-        @media(max-width:600px) {
-
-            .header h1 {
-                font-size: 23px;
-            }
-
-            .container {
-                padding: 12px;
-            }
-
-            .amount {
-                font-size: 22px;
-            }
-
-            .allocation {
-                grid-template-columns: 1fr 1fr;
-            }
-
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 18px;
         }
 
     </style>
 
 </head>
 
+
 <body>
 
-<header class="header">
 
-    <h1>My Finance Tracker</h1>
+<!-- =====================================
+     HEADER
+===================================== -->
 
-    <p>Income • Expenses • Debit • Credit</p>
+<div class="app-header">
 
-</header>
+    <h2>My Finance Tracker</h2>
 
+    <p class="mb-0">
+        Income • Expenses • Debit • Savings
+    </p>
 
-<div class="container">
-
-
-    <!-- ACTION BUTTONS -->
-
-    <div class="buttons">
-
-        <button
-            class="incomeBtn"
-            onclick="addIncomePrompt()">
-            + Add Income
-        </button>
+</div>
 
 
-        <button
-            class="expenseBtn"
-            onclick="addExpensePrompt()">
-            + Add Expense
-        </button>
+<div class="container py-4">
 
 
-        <button
-            class="debitBtn"
-            onclick="addDebitPrompt()">
-            + Add Debit
-        </button>
+<!-- =====================================
+     DASHBOARD
+===================================== -->
+
+<h4 class="section-title">
+    Dashboard
+</h4>
 
 
-        <button
-            class="payBtn"
-            onclick="payDebitPrompt()">
-            💰 Pay Debit
-        </button>
-
-    </div>
+<div class="row g-3">
 
 
-    <!-- DASHBOARD -->
+    <!-- TOTAL INCOME -->
 
-    <div class="cards">
+    <div class="col-6 col-lg-3">
 
+        <div class="dashboard-card">
 
-        <div class="card">
-
-            <h3>Total Income</h3>
+            <h6>Total Income</h6>
 
             <div
                 id="totalIncome"
                 class="amount income">
+
                 ₹0.00
-            </div>
 
-        </div>
-
-
-        <div class="card">
-
-            <h3>Total Expenses</h3>
-
-            <div
-                id="totalExpenses"
-                class="amount expense">
-                ₹0.00
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>Debit Outstanding</h3>
-
-            <div
-                id="debitOutstanding"
-                class="amount debit">
-                ₹0.00
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>Available Balance</h3>
-
-            <div
-                id="availableBalance"
-                class="amount balance">
-                ₹0.00
             </div>
 
         </div>
@@ -335,105 +148,63 @@
     </div>
 
 
-    <!-- INCOME ALLOCATION -->
+    <!-- TOTAL EXPENSES -->
 
-    <div class="section">
+    <div class="col-6 col-lg-3">
 
-        <h2>💰 Income Allocation</h2>
+        <div class="dashboard-card">
 
+            <h6>Total Expenses</h6>
 
-        <div class="allocation">
+            <div
+                id="totalExpenses"
+                class="amount expense">
 
-
-            <div class="personalBox">
-
-                <span>Personal</span>
-
-                <div class="percentage">
-                    30%
-                </div>
-
-                <strong id="personalAmount">
-                    ₹0.00
-                </strong>
+                ₹0.00
 
             </div>
-
-
-            <div class="emergencyBox">
-
-                <span>Emergency</span>
-
-                <div class="percentage">
-                    20%
-                </div>
-
-                <strong id="emergencyAmount">
-                    ₹0.00
-                </strong>
-
-            </div>
-
-
-            <div class="savingsBox">
-
-                <span>Savings</span>
-
-                <div class="percentage">
-                    20%
-                </div>
-
-                <strong id="savingsAmount">
-                    ₹0.00
-                </strong>
-
-            </div>
-
-
-            <div class="ppfBox">
-
-                <span>PPF</span>
-
-                <div class="percentage">
-                    20%
-                </div>
-
-                <strong id="ppfAmount">
-                    ₹0.00
-                </strong>
-
-            </div>
-
-
-            <div class="jarBox">
-
-                <span>Jar</span>
-
-                <div class="percentage">
-                    10%
-                </div>
-
-                <strong id="jarAmount">
-                    ₹0.00
-                </strong>
-
-            </div>
-
 
         </div>
 
+    </div>
 
-        <div class="info">
 
-            Every new income is automatically divided:
-            Personal 30% • Emergency 20% • Savings 20% • PPF 20% • Jar 10%.
+    <!-- DEBIT -->
+
+    <div class="col-6 col-lg-3">
+
+        <div class="dashboard-card">
+
+            <h6>Debit Outstanding</h6>
+
+            <div
+                id="debitOutstanding"
+                class="amount debit">
+
+                ₹22,50,000.00
+
+            </div>
 
         </div>
 
+    </div>
 
-        <div class="expenseInfo">
 
-            💡 Expenses are deducted from the <b>Personal</b> allocation.
+    <!-- AVAILABLE BALANCE -->
+
+    <div class="col-6 col-lg-3">
+
+        <div class="dashboard-card">
+
+            <h6>Available Balance</h6>
+
+            <div
+                id="availableBalance"
+                class="amount balance">
+
+                ₹0.00
+
+            </div>
 
         </div>
 
@@ -443,85 +214,451 @@
 </div>
 
 
-<script src="app.js"></script>
+<!-- =====================================
+     ACTION BUTTONS
+===================================== -->
 
+<div class="row g-3 mt-4">
+
+
+    <div class="col-6 col-md-3">
+
+        <button
+            class="btn btn-success w-100 action-btn"
+            onclick="addIncomePrompt()">
+
+            + Income
+
+        </button>
+
+    </div>
+
+
+    <div class="col-6 col-md-3">
+
+        <button
+            class="btn btn-danger w-100 action-btn"
+            onclick="addExpensePrompt()">
+
+            + Expense
+
+        </button>
+
+    </div>
+
+
+    <div class="col-6 col-md-3">
+
+        <button
+            class="btn btn-warning w-100 action-btn"
+            onclick="addDebitPrompt()">
+
+            + Debit
+
+        </button>
+
+    </div>
+
+
+    <div class="col-6 col-md-3">
+
+        <button
+            class="btn btn-primary w-100 action-btn"
+            onclick="payDebitPrompt()">
+
+            Pay Debit
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+<!-- =====================================
+     ALLOCATION
+===================================== -->
+
+<h4 class="section-title mt-5">
+    Income Allocation
+</h4>
+
+
+<div class="row g-3">
+
+
+    <div class="col-6 col-lg-4">
+
+        <div class="allocation-card">
+
+            <strong>Personal</strong>
+
+            <div class="text-muted">
+                30%
+            </div>
+
+            <h5
+                id="personalAmount"
+                class="mt-2">
+
+                ₹0.00
+
+            </h5>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-6 col-lg-4">
+
+        <div class="allocation-card">
+
+            <strong>Emergency</strong>
+
+            <div class="text-muted">
+                20%
+            </div>
+
+            <h5
+                id="emergencyAmount"
+                class="mt-2">
+
+                ₹0.00
+
+            </h5>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-6 col-lg-4">
+
+        <div class="allocation-card">
+
+            <strong>Savings</strong>
+
+            <div class="text-muted">
+                20%
+            </div>
+
+            <h5
+                id="savingsAmount"
+                class="mt-2">
+
+                ₹0.00
+
+            </h5>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-6 col-lg-4">
+
+        <div class="allocation-card">
+
+            <strong>PPF</strong>
+
+            <div class="text-muted">
+                20%
+            </div>
+
+            <h5
+                id="ppfAmount"
+                class="mt-2">
+
+                ₹0.00
+
+            </h5>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-6 col-lg-4">
+
+        <div class="allocation-card">
+
+            <strong>Jar</strong>
+
+            <div class="text-muted">
+                10%
+            </div>
+
+            <h5
+                id="jarAmount"
+                class="mt-2">
+
+                ₹0.00
+
+            </h5>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =====================================
+     TRANSACTION HISTORY
+===================================== -->
+
+<h4 class="section-title mt-5">
+    Transaction History
+</h4>
+
+
+<div id="transactionHistory">
+
+    <p class="text-muted">
+        No transactions yet.
+    </p>
+
+</div>
+
+
+</div>
+
+
+<!-- =====================================
+     JAVASCRIPT PROMPTS
+===================================== -->
 
 <script>
 
 
-// =========================
+// =====================================
 // INCOME PROMPT
-// =========================
+// =====================================
 
 function addIncomePrompt() {
 
     const amount =
         prompt("Enter Income Amount:");
 
-    if (amount !== null) {
-
-        addIncome(amount);
-
+    if (amount === null) {
+        return;
     }
+
+
+    const date =
+        prompt(
+            "Enter Income Date (YYYY-MM-DD):"
+        );
+
+    if (date === null) {
+        return;
+    }
+
+
+    const purpose =
+        prompt(
+            "Income Purpose / Source:"
+        );
+
+    if (purpose === null) {
+        return;
+    }
+
+
+    const notes =
+        prompt(
+            "Notes (Optional):"
+        ) || "";
+
+
+    addIncome(
+        amount,
+        date,
+        purpose,
+        notes
+    );
 
 }
 
 
-// =========================
+// =====================================
 // EXPENSE PROMPT
-// =========================
+// =====================================
 
 function addExpensePrompt() {
 
     const amount =
-        prompt("Enter Personal Expense Amount:");
+        prompt("Enter Expense Amount:");
 
-    if (amount !== null) {
-
-        addExpense(amount);
-
+    if (amount === null) {
+        return;
     }
+
+
+    const date =
+        prompt(
+            "Enter Expense Date (YYYY-MM-DD):"
+        );
+
+    if (date === null) {
+        return;
+    }
+
+
+    const purpose =
+        prompt(
+            "Expense Purpose / Reason:"
+        );
+
+    if (purpose === null) {
+        return;
+    }
+
+
+    const notes =
+        prompt(
+            "Notes (Optional):"
+        ) || "";
+
+
+    addExpense(
+        amount,
+        date,
+        purpose,
+        notes
+    );
 
 }
 
 
-// =========================
+// =====================================
 // DEBIT PROMPT
-// =========================
+// =====================================
 
 function addDebitPrompt() {
 
     const amount =
-        prompt("Enter Debit Amount:");
+        prompt("Enter New Debit Amount:");
 
-    if (amount !== null) {
-
-        addDebit(amount);
-
+    if (amount === null) {
+        return;
     }
+
+
+    const date =
+        prompt(
+            "Debit Date (YYYY-MM-DD):"
+        );
+
+    if (date === null) {
+        return;
+    }
+
+
+    const person =
+        prompt(
+            "Person / Company Name:"
+        );
+
+    if (person === null) {
+        return;
+    }
+
+
+    const dueDate =
+        prompt(
+            "Due Date (YYYY-MM-DD) - Optional:"
+        ) || "";
+
+
+    const purpose =
+        prompt(
+            "Debit Purpose - Optional:"
+        ) || "";
+
+
+    const notes =
+        prompt(
+            "Notes - Optional:"
+        ) || "";
+
+
+    addDebit(
+        amount,
+        date,
+        person,
+        dueDate,
+        purpose,
+        notes
+    );
 
 }
 
 
-// =========================
+// =====================================
 // PAY DEBIT PROMPT
-// =========================
+// =====================================
 
 function payDebitPrompt() {
 
     const amount =
-        prompt("Enter Paid Debit Amount:");
+        prompt("Enter Debit Payment Amount:");
 
-    if (amount !== null) {
-
-        payDebit(amount);
-
+    if (amount === null) {
+        return;
     }
+
+
+    const date =
+        prompt(
+            "Payment Date (YYYY-MM-DD):"
+        );
+
+    if (date === null) {
+        return;
+    }
+
+
+    const person =
+        prompt(
+            "Person / Company Name - Optional:"
+        ) || "";
+
+
+    const purpose =
+        prompt(
+            "Payment Purpose - Optional:"
+        ) || "";
+
+
+    const notes =
+        prompt(
+            "Notes - Optional:"
+        ) || "";
+
+
+    payDebit(
+        amount,
+        date,
+        person,
+        purpose,
+        notes
+    );
 
 }
 
 
 </script>
+
+
+<!-- =====================================
+     APP JS
+===================================== -->
+
+<script src="app.js"></script>
 
 
 </body>

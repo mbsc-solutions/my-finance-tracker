@@ -106,8 +106,7 @@ function addIncome(
 
 
     // --------------------------------------
-    // TOTAL INCOME
-    //
+    // TOTAL INCOME DISPLAY
     // ONLY PERSONAL + EMERGENCY + SAVINGS
     // PPF + JAR NOT INCLUDED
     // --------------------------------------
@@ -263,7 +262,6 @@ function addExpense(
 
     // --------------------------------------
     // TOTAL INCOME DISPLAY
-    //
     // Personal + Emergency + Savings
     // --------------------------------------
 
@@ -544,7 +542,6 @@ function updateDashboard() {
 
     // --------------------------------------
     // TOTAL INCOME
-    // --------------------------------------
     // Personal + Emergency + Savings ONLY
     // PPF + Jar excluded
     // --------------------------------------
@@ -767,7 +764,10 @@ function displayTransactions() {
                 let extraInfo = "";
 
 
-                // Source
+                // ----------------------------------
+                // SOURCE
+                // ----------------------------------
+
                 if (transaction.source) {
 
                     extraInfo +=
@@ -780,7 +780,10 @@ function displayTransactions() {
                 }
 
 
-                // Allocation
+                // ----------------------------------
+                // ALLOCATION
+                // ----------------------------------
+
                 if (transaction.allocation) {
 
                     extraInfo +=
@@ -793,7 +796,10 @@ function displayTransactions() {
                 }
 
 
-                // Person
+                // ----------------------------------
+                // PERSON
+                // ----------------------------------
+
                 if (transaction.person) {
 
                     extraInfo +=
@@ -806,7 +812,10 @@ function displayTransactions() {
                 }
 
 
-                // Due Date
+                // ----------------------------------
+                // DUE DATE
+                // ----------------------------------
+
                 if (transaction.dueDate) {
 
                     extraInfo +=
@@ -818,6 +827,41 @@ function displayTransactions() {
 
                 }
 
+
+                // ----------------------------------
+                // PAY DEBIT BUTTON
+                // Only for Debit transactions
+                // ----------------------------------
+
+                let payButton = "";
+
+                if (
+                    transaction.type === "Debit" &&
+                    debitOutstanding > 0
+                ) {
+
+                    payButton = `
+
+                        <div class="mt-2">
+
+                            <button
+                                class="btn btn-primary btn-sm pay-btn"
+                                onclick="payDebitPrompt('${transaction.person || ""}')">
+
+                                Pay Debit
+
+                            </button>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                // ----------------------------------
+                // FINAL TRANSACTION CARD
+                // ----------------------------------
 
                 return `
 
@@ -846,6 +890,8 @@ function displayTransactions() {
                         </div>
 
                         ${extraInfo}
+
+                        ${payButton}
 
                     </div>
 

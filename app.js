@@ -1,5 +1,6 @@
 let totalIncome = 0;
 let totalExpenses = 0;
+
 let totalDebit = 0;
 let totalDebitPaid = 0;
 
@@ -14,20 +15,6 @@ const allocation = {
 };
 
 
-// Calculate Income Allocation
-function calculateIncomeAllocation(amount) {
-
-    return {
-        Personal: amount * 30 / 100,
-        Emergency: amount * 20 / 100,
-        Savings: amount * 20 / 100,
-        PPF: amount * 20 / 100,
-        Jar: amount * 10 / 100
-    };
-
-}
-
-
 // Add Income
 function addIncome(amount) {
 
@@ -38,10 +25,10 @@ function addIncome(amount) {
         return;
     }
 
+    // Income ONLY increases income
     totalIncome += amount;
 
     updateDashboard();
-
 }
 
 
@@ -58,7 +45,6 @@ function addExpense(amount) {
     totalExpenses += amount;
 
     updateDashboard();
-
 }
 
 
@@ -72,10 +58,10 @@ function addDebit(amount) {
         return;
     }
 
+    // Debit is created here
     totalDebit += amount;
 
     updateDashboard();
-
 }
 
 
@@ -89,35 +75,46 @@ function payDebit(amount) {
         return;
     }
 
-    const remainingDebit =
-        totalDebit - totalDebitPaid;
+    const remainingDebit = totalDebit - totalDebitPaid;
 
-    if (amount > remainingDebit) {
-        alert("Payment cannot be greater than remaining debit.");
+    if (remainingDebit <= 0) {
+        alert("There is no outstanding debit.");
         return;
     }
 
+    if (amount > remainingDebit) {
+        alert(
+            "Payment cannot be greater than remaining debit.\n" +
+            "Remaining Debit: ₹" + remainingDebit.toFixed(2)
+        );
+        return;
+    }
+
+    // ONLY debit payment increases paid debit
     totalDebitPaid += amount;
 
     updateDashboard();
-
 }
 
 
 // Remaining Debit
 function getRemainingDebit() {
 
-    return totalDebit - totalDebitPaid;
-
+    return Math.max(
+        0,
+        totalDebit - totalDebitPaid
+    );
 }
 
 
 // Available Balance
 function getAvailableBalance() {
 
-    return totalIncome -
-           totalExpenses -
-           totalDebitPaid;
+    return (
+        totalIncome -
+        totalExpenses -
+        totalDebitPaid
+    );
 
 }
 

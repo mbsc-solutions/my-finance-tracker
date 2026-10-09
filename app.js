@@ -1,3 +1,4 @@
+
 // ==========================================
 // MY FINANCE TRACKER
 // Income + Expenses + Debit + Daily Transfers
@@ -107,7 +108,7 @@ function todayStorageDate() {
 
 // ==========================================
 // ADD INCOME
-// Income: Amount + Date + Source ONLY
+// Amount + Date + Source ONLY
 // ==========================================
 
 function addIncome(amount, date, source) {
@@ -158,7 +159,6 @@ function addIncomePrompt() {
 
     if (source === null) return;
 
-    // No Income Purpose prompt.
     addIncome(amount, date, source);
 }
 
@@ -225,15 +225,10 @@ function addExpense(amount, date, allocationType, purpose) {
 
 // ==========================================
 // ADD DEBIT
+// Debit stores ONLY Amount + Date
 // ==========================================
 
-function addDebit(
-    amount,
-    date,
-    person = "",
-    dueDate = "",
-    purpose = ""
-) {
+function addDebit(amount, date) {
     amount = Number(amount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -250,10 +245,7 @@ function addDebit(
         id: Date.now(),
         type: "Debit",
         amount: amount,
-        date: date,
-        person: String(person || "").trim(),
-        dueDate: dueDate || "",
-        purpose: String(purpose || "").trim()
+        date: date
     });
 
     rebuildDataFromTransactions();
@@ -310,25 +302,11 @@ function rebuildDataFromTransactions() {
         }
     });
 
-    if (Math.abs(personalBalance) < 0.001) {
-        personalBalance = 0;
-    }
-
-    if (Math.abs(emergencyBalance) < 0.001) {
-        emergencyBalance = 0;
-    }
-
-    if (Math.abs(savingsBalance) < 0.001) {
-        savingsBalance = 0;
-    }
-
-    if (Math.abs(ppfBalance) < 0.001) {
-        ppfBalance = 0;
-    }
-
-    if (Math.abs(jarBalance) < 0.001) {
-        jarBalance = 0;
-    }
+    if (Math.abs(personalBalance) < 0.001) personalBalance = 0;
+    if (Math.abs(emergencyBalance) < 0.001) emergencyBalance = 0;
+    if (Math.abs(savingsBalance) < 0.001) savingsBalance = 0;
+    if (Math.abs(ppfBalance) < 0.001) ppfBalance = 0;
+    if (Math.abs(jarBalance) < 0.001) jarBalance = 0;
 }
 
 function getAvailableBalance() {
@@ -355,24 +333,17 @@ function updateDashboard() {
 
     setText("totalIncome", money(totalIncome));
     setText("totalExpenses", money(totalExpenses));
+
     setText(
         "debitOutstanding",
         money(Math.max(0, debitOutstanding))
     );
+
     setText("availableBalance", money(getAvailableBalance()));
 
-    setText(
-        "personalAmount",
-        money(Math.max(0, personalBalance))
-    );
-    setText(
-        "emergencyAmount",
-        money(Math.max(0, emergencyBalance))
-    );
-    setText(
-        "savingsAmount",
-        money(Math.max(0, savingsBalance))
-    );
+    setText("personalAmount", money(Math.max(0, personalBalance)));
+    setText("emergencyAmount", money(Math.max(0, emergencyBalance)));
+    setText("savingsAmount", money(Math.max(0, savingsBalance)));
     setText("ppfAmount", money(Math.max(0, ppfBalance)));
     setText("jarAmount", money(Math.max(0, jarBalance)));
 
@@ -382,7 +353,6 @@ function updateDashboard() {
 
 // ==========================================
 // DAILY INCOME TRANSFER DETAILS
-// Shows only the income for the selected date
 // ==========================================
 
 function displayDailyTransfers() {
@@ -401,10 +371,7 @@ function displayDailyTransfers() {
 
     const dailyIncome = transactions
         .filter(t => t.type === "Income" && t.date === selectedDate)
-        .reduce(
-            (sum, t) => sum + (Number(t.amount) || 0),
-            0
-        );
+        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
     if (dailyIncome === 0) {
         details.innerHTML = `
@@ -427,8 +394,7 @@ function displayDailyTransfers() {
     let html = `
         <div class="mb-3">
             <div class="text-muted">
-                Selected Date:
-                ${escapeHTML(formatDate(selectedDate))}
+                Selected Date: ${escapeHTML(formatDate(selectedDate))}
             </div>
 
             <h5 class="mt-2">
@@ -445,7 +411,6 @@ function displayDailyTransfers() {
                         <th>Transfer Amount</th>
                     </tr>
                 </thead>
-
                 <tbody>
     `;
 
@@ -463,7 +428,6 @@ function displayDailyTransfers() {
 
     html += `
                 </tbody>
-
                 <tfoot class="table-light">
                     <tr>
                         <th colspan="2">Total</th>
@@ -482,8 +446,7 @@ function displayDailyTransfers() {
 // ==========================================
 
 function displayTransactions() {
-    const historyElement =
-        document.getElementById("transactionHistory");
+    const historyElement = document.getElementById("transactionHistory");
 
     if (!historyElement) return;
 
@@ -498,22 +461,15 @@ function displayTransactions() {
     }
 
     const sortedTransactions = [...validTransactions].sort((a, b) => {
-        const dateDifference =
-            String(b.date).localeCompare(String(a.date));
-
+        const dateDifference = String(b.date).localeCompare(String(a.date));
         return dateDifference || Number(b.id) - Number(a.id);
     });
 
     historyElement.innerHTML = sortedTransactions.map(transaction => {
         let typeClass = "text-primary";
 
-        if (transaction.type === "Income") {
-            typeClass = "text-success";
-        }
-
-        if (transaction.type === "Expense") {
-            typeClass = "text-danger";
-        }
+        if (transaction.type === "Income") typeClass = "text-success";
+        if (transaction.type === "Expense") typeClass = "text-danger";
 
         let extraInfo = "";
 
@@ -535,30 +491,9 @@ function displayTransactions() {
             `;
         }
 
-        if (transaction.person) {
-            extraInfo += `
-                <div>
-                    <strong>Person / Company:</strong>
-                    ${escapeHTML(transaction.person)}
-                </div>
-            `;
-        }
-
-        if (transaction.dueDate) {
-            extraInfo += `
-                <div>
-                    <strong>Due Date:</strong>
-                    ${escapeHTML(formatDate(transaction.dueDate))}
-                </div>
-            `;
-        }
-
-        // Purpose is shown only for Expense and Debit.
-        // Income Purpose is not displayed, including old saved entries.
-        if (
-            transaction.type !== "Income" &&
-            transaction.purpose
-        ) {
+        // Purpose is displayed ONLY for Expense.
+        // Debit Due Date, Person and Purpose are not displayed.
+        if (transaction.type === "Expense" && transaction.purpose) {
             extraInfo += `
                 <div>
                     <strong>Purpose:</strong>
@@ -652,15 +587,16 @@ function addExpensePrompt() {
 
 // ==========================================
 // ADD DEBIT PROMPT
+// ONLY Pay Amount + Date
 // ==========================================
 
 function addDebitPrompt() {
-    const amount = prompt("Enter New Debit Amount:");
+    const amount = prompt("Enter Pay Amount:");
 
     if (amount === null) return;
 
     const dateInput = prompt(
-        "Debit Date (DD-MM-YYYY):\n\nExample: 09-10-2026"
+        "Enter Date (DD-MM-YYYY):\n\nExample: 09-10-2026"
     );
 
     if (dateInput === null) return;
@@ -672,25 +608,7 @@ function addDebitPrompt() {
         return;
     }
 
-    const person = prompt("Person / Company Name:") || "";
-
-    const dueDateInput =
-        prompt("Due Date (DD-MM-YYYY) - Optional:") || "";
-
-    let dueDate = "";
-
-    if (dueDateInput.trim()) {
-        dueDate = convertDateToStorage(dueDateInput);
-
-        if (!dueDate) {
-            alert("Please enter a valid due date in DD-MM-YYYY format.");
-            return;
-        }
-    }
-
-    const purpose = prompt("Debit Purpose:") || "";
-
-    addDebit(amount, date, person, dueDate, purpose);
+    addDebit(amount, date);
 }
 
 // ==========================================
@@ -737,6 +655,22 @@ function editTransaction(id) {
         return;
     }
 
+    // DEBIT EDIT: Amount + Date only.
+    if (transaction.type === "Debit") {
+        transaction.amount = amount;
+        transaction.date = date;
+
+        // Remove obsolete fields from older saved Debit records.
+        delete transaction.person;
+        delete transaction.dueDate;
+        delete transaction.purpose;
+
+        rebuildDataFromTransactions();
+        saveData();
+        updateDashboard();
+        return;
+    }
+
     transaction.amount = amount;
     transaction.date = date;
 
@@ -753,8 +687,6 @@ function editTransaction(id) {
         }
 
         transaction.source = source.trim();
-
-        // Remove old saved Income Purpose, if any.
         delete transaction.purpose;
     }
 
@@ -798,57 +730,6 @@ function editTransaction(id) {
         transaction.purpose = purpose.trim();
     }
 
-    // DEBIT EDIT: Purpose remains.
-    if (transaction.type === "Debit") {
-        const person = prompt(
-            "Person / Company Name:",
-            transaction.person || ""
-        );
-
-        if (person === null) {
-            Object.assign(transaction, oldTransaction);
-            return;
-        }
-
-        const dueDateInput = prompt(
-            "Due Date (DD-MM-YYYY) - Optional:",
-            transaction.dueDate
-                ? formatDate(transaction.dueDate)
-                : ""
-        );
-
-        if (dueDateInput === null) {
-            Object.assign(transaction, oldTransaction);
-            return;
-        }
-
-        let dueDate = "";
-
-        if (dueDateInput.trim()) {
-            dueDate = convertDateToStorage(dueDateInput);
-
-            if (!dueDate) {
-                Object.assign(transaction, oldTransaction);
-                alert("Please enter a valid due date.");
-                return;
-            }
-        }
-
-        const purpose = prompt(
-            "Debit Purpose:",
-            transaction.purpose || ""
-        );
-
-        if (purpose === null) {
-            Object.assign(transaction, oldTransaction);
-            return;
-        }
-
-        transaction.person = person.trim();
-        transaction.dueDate = dueDate;
-        transaction.purpose = purpose.trim();
-    }
-
     rebuildDataFromTransactions();
 
     if (
@@ -857,7 +738,6 @@ function editTransaction(id) {
         savingsBalance < -0.001
     ) {
         Object.assign(transaction, oldTransaction);
-
         rebuildDataFromTransactions();
 
         alert(
@@ -907,7 +787,6 @@ function deleteTransaction(id) {
         savingsBalance < -0.001
     ) {
         transactions = oldTransactions;
-
         rebuildDataFromTransactions();
 
         alert(
@@ -962,11 +841,23 @@ function loadData() {
                 ? data.transactions
                 : [];
 
-            // Keep existing transaction data except obsolete
-            // Debit Payment entries from older versions.
+            // Remove obsolete Debit Payment transactions.
             transactions = transactions.filter(
                 t => t.type !== "Debit Payment"
             );
+
+            // Clean old Debit records so only Amount + Date remain.
+            transactions.forEach(transaction => {
+                if (transaction.type === "Debit") {
+                    delete transaction.person;
+                    delete transaction.dueDate;
+                    delete transaction.purpose;
+                }
+
+                if (transaction.type === "Income") {
+                    delete transaction.purpose;
+                }
+            });
 
         } catch (error) {
             console.error("Data loading error:", error);
@@ -975,6 +866,7 @@ function loadData() {
     }
 
     rebuildDataFromTransactions();
+    saveData();
     updateDashboard();
 }
 
@@ -987,6 +879,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (dateInput) {
         dateInput.value = todayStorageDate();
+        dateInput.addEventListener("change", displayDailyTransfers);
     }
 
     loadData();

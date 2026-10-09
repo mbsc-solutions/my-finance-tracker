@@ -101,38 +101,27 @@ function todayStorageDate() {
 // ADD INCOME
 // ==========================================
 
-function addIncome(amount, date, source, purpose) {
-    amount = Number(amount);
+function addIncomePrompt() {
+    const amount = prompt("Enter Income Amount:");
+    if (amount === null) return;
 
-    if (!Number.isFinite(amount) || amount <= 0) {
-        alert("Please enter a valid income amount.");
-        return;
-    }
+    const dateInput = prompt(
+        "Enter Income Date (DD-MM-YYYY):\n\nExample: 09-10-2026"
+    );
+    if (dateInput === null) return;
+
+    const date = convertDateToStorage(dateInput);
 
     if (!date) {
-        alert("Please enter income date.");
+        alert("Please enter a valid date in DD-MM-YYYY format.");
         return;
     }
 
-    if (!purpose || !purpose.trim()) {
-        alert("Please enter income purpose.");
-        return;
-    }
+    const source = prompt("Enter Income Source:");
+    if (source === null) return;
 
-    transactions.push({
-        id: Date.now(),
-        type: "Income",
-        amount,
-        date,
-        source: String(source || "").trim(),
-        purpose: purpose.trim()
-    });
-
-    rebuildDataFromTransactions();
-    saveData();
-    updateDashboard();
+    addIncome(amount, date, source);
 }
-
 // ==========================================
 // ADD EXPENSE
 // ==========================================

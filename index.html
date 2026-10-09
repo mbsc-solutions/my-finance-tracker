@@ -1,21 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Finance Tracker</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-
         body {
             background: #f4f7fb;
             font-family: Arial, sans-serif;
@@ -45,23 +37,13 @@
         .amount {
             font-size: 25px;
             font-weight: bold;
+            overflow-wrap: anywhere;
         }
 
-        .income {
-            color: #198754;
-        }
-
-        .expense {
-            color: #dc3545;
-        }
-
-        .debit {
-            color: #fd7e14;
-        }
-
-        .balance {
-            color: #0d6efd;
-        }
+        .income { color: #198754; }
+        .expense { color: #dc3545; }
+        .debit { color: #fd7e14; }
+        .balance { color: #0d6efd; }
 
         .action-btn {
             border-radius: 12px;
@@ -75,6 +57,7 @@
             padding: 18px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.07);
             background: white;
+            height: 100%;
         }
 
         .transaction-item {
@@ -83,6 +66,7 @@
             padding: 15px;
             margin-bottom: 12px;
             box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            overflow-wrap: anywhere;
         }
 
         .section-title {
@@ -90,829 +74,146 @@
             margin-bottom: 18px;
         }
 
-        .pay-btn {
-            margin-top: 12px;
+        .transfer-amount {
+            font-weight: bold;
+            color: #198754;
         }
 
+        .transfer-table th,
+        .transfer-table td {
+            vertical-align: middle;
+        }
     </style>
-
 </head>
 
-
 <body>
+    <div class="app-header">
+        <h2>My Finance Tracker</h2>
+        <p class="mb-0">Income • Expenses • Debit • Savings</p>
+    </div>
 
+    <div class="container py-4">
 
-<!-- =====================================
-     HEADER
-===================================== -->
+        <!-- DASHBOARD -->
+        <h4 class="section-title">Dashboard</h4>
 
-<div class="app-header">
-
-    <h2>My Finance Tracker</h2>
-
-    <p class="mb-0">
-        Income • Expenses • Debit • Savings
-    </p>
-
-</div>
-
-
-<div class="container py-4">
-
-
-<!-- =====================================
-     DASHBOARD
-===================================== -->
-
-<h4 class="section-title">
-    Dashboard
-</h4>
-
-
-<div class="row g-3">
-
-
-    <!-- TOTAL INCOME -->
-
-    <div class="col-6 col-lg-3">
-
-        <div class="dashboard-card">
-
-            <h6>Total Income</h6>
-
-            <div
-                id="totalIncome"
-                class="amount income">
-
-                ₹0.00
-
+        <div class="row g-3">
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-card">
+                    <h6>Total Income</h6>
+                    <div id="totalIncome" class="amount income">₹0.00</div>
+                </div>
             </div>
 
-        </div>
-
-    </div>
-
-
-    <!-- TOTAL EXPENSES -->
-
-    <div class="col-6 col-lg-3">
-
-        <div class="dashboard-card">
-
-            <h6>Total Expenses</h6>
-
-            <div
-                id="totalExpenses"
-                class="amount expense">
-
-                ₹0.00
-
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-card">
+                    <h6>Total Expenses</h6>
+                    <div id="totalExpenses" class="amount expense">₹0.00</div>
+                </div>
             </div>
 
-        </div>
-
-    </div>
-
-
-    <!-- DEBIT -->
-
-    <div class="col-6 col-lg-3">
-
-        <div class="dashboard-card">
-
-            <h6>Debit Outstanding</h6>
-
-            <div
-                id="debitOutstanding"
-                class="amount debit">
-
-                ₹22,50,000.00
-
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-card">
+                    <h6>Debit Outstanding</h6>
+                    <div id="debitOutstanding" class="amount debit">₹22,50,000.00</div>
+                </div>
             </div>
 
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-card">
+                    <h6>Available Balance</h6>
+                    <div id="availableBalance" class="amount balance">₹0.00</div>
+                </div>
+            </div>
         </div>
 
-    </div>
-
-
-    <!-- AVAILABLE BALANCE -->
-
-    <div class="col-6 col-lg-3">
-
-        <div class="dashboard-card">
-
-            <h6>Available Balance</h6>
-
-            <div
-                id="availableBalance"
-                class="amount balance">
-
-                ₹0.00
-
+        <!-- ACTION BUTTONS -->
+        <div class="row g-3 mt-4">
+            <div class="col-6 col-md-4">
+                <button class="btn btn-success w-100 action-btn"
+                        onclick="addIncomePrompt()">+ Income</button>
             </div>
 
+            <div class="col-6 col-md-4">
+                <button class="btn btn-danger w-100 action-btn"
+                        onclick="addExpensePrompt()">+ Expense</button>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <button class="btn btn-warning w-100 action-btn"
+                        onclick="addDebitPrompt()">+ Debit</button>
+            </div>
         </div>
 
-    </div>
+        <!-- INCOME ALLOCATION TOTAL BALANCES -->
+        <h4 class="section-title mt-5">Income Allocation</h4>
 
+        <div class="row g-3">
+            <div class="col-6 col-lg-4">
+                <div class="allocation-card">
+                    <strong>Personal — AXIS</strong>
+                    <div class="text-muted">30%</div>
+                    <h5 id="personalAmount" class="mt-2">₹0.00</h5>
+                </div>
+            </div>
 
-</div>
+            <div class="col-6 col-lg-4">
+                <div class="allocation-card">
+                    <strong>Emergency — IPPB</strong>
+                    <div class="text-muted">20%</div>
+                    <h5 id="emergencyAmount" class="mt-2">₹0.00</h5>
+                </div>
+            </div>
 
+            <div class="col-6 col-lg-4">
+                <div class="allocation-card">
+                    <strong>Savings — SBI</strong>
+                    <div class="text-muted">20%</div>
+                    <h5 id="savingsAmount" class="mt-2">₹0.00</h5>
+                </div>
+            </div>
 
-<!-- =====================================
-     ACTION BUTTONS
-===================================== -->
+            <div class="col-6 col-lg-4">
+                <div class="allocation-card">
+                    <strong>PPF — Postal SB</strong>
+                    <div class="text-muted">20%</div>
+                    <h5 id="ppfAmount" class="mt-2">₹0.00</h5>
+                </div>
+            </div>
 
-<div class="row g-3 mt-4">
+            <div class="col-6 col-lg-4">
+                <div class="allocation-card">
+                    <strong>Jar</strong>
+                    <div class="text-muted">10%</div>
+                    <h5 id="jarAmount" class="mt-2">₹0.00</h5>
+                </div>
+            </div>
+        </div>
 
-
-    <!-- INCOME -->
-
-    <div class="col-6 col-md-4">
-
-        <button
-            class="btn btn-success w-100 action-btn"
-            onclick="addIncomePrompt()">
-
-            + Income
-
-        </button>
-
-    </div>
-
-
-    <!-- EXPENSE -->
-
-    <div class="col-6 col-md-4">
-
-        <button
-            class="btn btn-danger w-100 action-btn"
-            onclick="addExpensePrompt()">
-
-            + Expense
-
-        </button>
-
-    </div>
-
-
-    <!-- DEBIT -->
-
-    <div class="col-12 col-md-4">
-
-        <button
-            class="btn btn-warning w-100 action-btn"
-            onclick="addDebitPrompt()">
-
-            + Debit
-
-        </button>
-
-    </div>
-
-
-</div>
-
-
-<!-- =====================================
-     ALLOCATION
-===================================== -->
-
-<h4 class="section-title mt-5">
-    Income Allocation
-</h4>
-
-
-<div class="row g-3">
-
-
-    <!-- PERSONAL -->
-
-    <div class="col-6 col-lg-4">
+        <!-- DAILY INCOME TRANSFER -->
+        <h4 class="section-title mt-5">Today's Income Transfer Details</h4>
 
         <div class="allocation-card">
+            <label for="transferDate" class="form-label">
+                Select Income Date
+            </label>
 
-            <strong>Personal</strong>
+            <input type="date"
+                   id="transferDate"
+                   class="form-control mb-3"
+                   onchange="displayDailyTransfers()">
 
-            <div class="text-muted">
-                30%
-            </div>
+            <div id="dailyTransferDetails"></div>
+        </div>
 
-            <h5
-                id="personalAmount"
-                class="mt-2">
-
-                ₹0.00
-
-            </h5>
-
+        <!-- TRANSACTION HISTORY -->
+        <h4 class="section-title mt-5">Transaction History</h4>
+        <div id="transactionHistory">
+            <p class="text-muted">No transactions yet.</p>
         </div>
 
     </div>
 
-
-    <!-- EMERGENCY -->
-
-    <div class="col-6 col-lg-4">
-
-        <div class="allocation-card">
-
-            <strong>Emergency</strong>
-
-            <div class="text-muted">
-                20%
-            </div>
-
-            <h5
-                id="emergencyAmount"
-                class="mt-2">
-
-                ₹0.00
-
-            </h5>
-
-        </div>
-
-    </div>
-
-
-    <!-- SAVINGS -->
-
-    <div class="col-6 col-lg-4">
-
-        <div class="allocation-card">
-
-            <strong>Savings</strong>
-
-            <div class="text-muted">
-                20%
-            </div>
-
-            <h5
-                id="savingsAmount"
-                class="mt-2">
-
-                ₹0.00
-
-            </h5>
-
-        </div>
-
-    </div>
-
-
-    <!-- PPF -->
-
-    <div class="col-6 col-lg-4">
-
-        <div class="allocation-card">
-
-            <strong>PPF</strong>
-
-            <div class="text-muted">
-                20%
-            </div>
-
-            <h5
-                id="ppfAmount"
-                class="mt-2">
-
-                ₹0.00
-
-            </h5>
-
-        </div>
-
-    </div>
-
-
-    <!-- JAR -->
-
-    <div class="col-6 col-lg-4">
-
-        <div class="allocation-card">
-
-            <strong>Jar</strong>
-
-            <div class="text-muted">
-                10%
-            </div>
-
-            <h5
-                id="jarAmount"
-                class="mt-2">
-
-                ₹0.00
-
-            </h5>
-
-        </div>
-
-    </div>
-
-
-</div>
-
-
-<!-- =====================================
-     TRANSACTION HISTORY
-===================================== -->
-
-<h4 class="section-title mt-5">
-    Transaction History
-</h4>
-
-
-<div id="transactionHistory">
-
-    <p class="text-muted">
-        No transactions yet.
-    </p>
-
-</div>
-
-
-</div>
-
-
-<!-- =====================================
-     JAVASCRIPT PROMPTS
-===================================== -->
-
-<script>
-
-
-// =====================================
-// CONVERT DD-MM-YYYY TO YYYY-MM-DD
-// =====================================
-
-function convertDateToStorage(dateString) {
-
-    if (!dateString) {
-        return "";
-    }
-
-
-    const parts =
-        dateString.trim().split("-");
-
-
-    if (parts.length !== 3) {
-
-        return dateString;
-
-    }
-
-
-    const day = parts[0];
-
-    const month = parts[1];
-
-    const year = parts[2];
-
-
-    if (
-        day.length !== 2 ||
-        month.length !== 2 ||
-        year.length !== 4
-    ) {
-
-        return dateString;
-
-    }
-
-
-    return (
-        year +
-        "-" +
-        month +
-        "-" +
-        day
-    );
-
-}
-
-
-// =====================================
-// VALIDATE DD-MM-YYYY
-// =====================================
-
-function isValidDateFormat(dateString) {
-
-    if (!dateString) {
-        return false;
-    }
-
-
-    const regex =
-        /^\d{2}-\d{2}-\d{4}$/;
-
-
-    if (!regex.test(dateString)) {
-
-        return false;
-
-    }
-
-
-    const parts =
-        dateString.split("-");
-
-
-    const day =
-        Number(parts[0]);
-
-    const month =
-        Number(parts[1]);
-
-    const year =
-        Number(parts[2]);
-
-
-    if (
-        month < 1 ||
-        month > 12 ||
-        day < 1 ||
-        day > 31
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-// =====================================
-// INCOME PROMPT
-// =====================================
-
-function addIncomePrompt() {
-
-    const amount =
-        prompt("Enter Income Amount:");
-
-    if (amount === null) {
-        return;
-    }
-
-
-    const dateInput =
-        prompt(
-            "Enter Income Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
-        );
-
-    if (dateInput === null) {
-        return;
-    }
-
-
-    if (!isValidDateFormat(dateInput)) {
-
-        alert(
-            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
-        );
-
-        return;
-
-    }
-
-
-    const date =
-        convertDateToStorage(dateInput);
-
-
-    const source =
-        prompt(
-            "Income Source:"
-        );
-
-    if (source === null) {
-        return;
-    }
-
-
-    const purpose =
-        prompt(
-            "Income Purpose:"
-        );
-
-    if (purpose === null) {
-        return;
-    }
-
-
-    addIncome(
-        amount,
-        date,
-        source,
-        purpose
-    );
-
-}
-
-
-// =====================================
-// EXPENSE PROMPT
-// =====================================
-
-function addExpensePrompt() {
-
-    const amount =
-        prompt("Enter Expense Amount:");
-
-    if (amount === null) {
-        return;
-    }
-
-
-    const dateInput =
-        prompt(
-            "Enter Expense Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
-        );
-
-    if (dateInput === null) {
-        return;
-    }
-
-
-    if (!isValidDateFormat(dateInput)) {
-
-        alert(
-            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
-        );
-
-        return;
-
-    }
-
-
-    const date =
-        convertDateToStorage(dateInput);
-
-
-    const allocationType =
-        prompt(
-
-            "Expense From Which Allocation?\n\n" +
-
-            "1 = Personal\n" +
-            "2 = Emergency\n" +
-            "3 = Savings\n\n" +
-
-            "Enter 1, 2 or 3:"
-
-        );
-
-
-    if (allocationType === null) {
-        return;
-    }
-
-
-    let selectedAllocation = "";
-
-
-    if (allocationType === "1") {
-
-        selectedAllocation =
-            "Personal";
-
-    }
-
-    else if (allocationType === "2") {
-
-        selectedAllocation =
-            "Emergency";
-
-    }
-
-    else if (allocationType === "3") {
-
-        selectedAllocation =
-            "Savings";
-
-    }
-
-    else {
-
-        alert(
-            "Please enter only 1, 2 or 3."
-        );
-
-        return;
-
-    }
-
-
-    const purpose =
-        prompt(
-            "Expense Purpose:"
-        );
-
-    if (purpose === null) {
-        return;
-    }
-
-
-    addExpense(
-        amount,
-        date,
-        selectedAllocation,
-        purpose
-    );
-
-}
-
-
-// =====================================
-// DEBIT PROMPT
-// =====================================
-
-function addDebitPrompt() {
-
-    const amount =
-        prompt(
-            "Enter New Debit Amount:"
-        );
-
-    if (amount === null) {
-        return;
-    }
-
-
-    const dateInput =
-        prompt(
-            "Debit Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
-        );
-
-    if (dateInput === null) {
-        return;
-    }
-
-
-    if (!isValidDateFormat(dateInput)) {
-
-        alert(
-            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
-        );
-
-        return;
-
-    }
-
-
-    const date =
-        convertDateToStorage(dateInput);
-
-
-    const person =
-        prompt(
-            "Person / Company Name:"
-        );
-
-    if (person === null) {
-        return;
-    }
-
-
-    const dueDateInput =
-        prompt(
-            "Due Date (DD-MM-YYYY) - Optional:\n\nExample: 06-11-2026"
-        ) || "";
-
-
-    let dueDate = "";
-
-
-    if (dueDateInput.trim() !== "") {
-
-        if (!isValidDateFormat(dueDateInput)) {
-
-            alert(
-                "Please enter Due Date in DD-MM-YYYY format.\n\nExample: 06-11-2026"
-            );
-
-            return;
-
-        }
-
-
-        dueDate =
-            convertDateToStorage(
-                dueDateInput
-            );
-
-    }
-
-
-    const purpose =
-        prompt(
-            "Debit Purpose:"
-        );
-
-    if (purpose === null) {
-        return;
-    }
-
-
-    addDebit(
-        amount,
-        date,
-        person,
-        dueDate,
-        purpose
-    );
-
-}
-
-
-// =====================================
-// PAY DEBIT
-// =====================================
-// Payment is available from Debit history.
-// It is NOT a separate dashboard button.
-// Payment will be deducted from PPF.
-// =====================================
-
-function payDebitPrompt(person = "") {
-
-    const amount =
-        prompt(
-            "Enter Debit Payment Amount:"
-        );
-
-    if (amount === null) {
-        return;
-    }
-
-
-    const dateInput =
-        prompt(
-            "Payment Date (DD-MM-YYYY):\n\nExample: 06-10-2026"
-        );
-
-    if (dateInput === null) {
-        return;
-    }
-
-
-    if (!isValidDateFormat(dateInput)) {
-
-        alert(
-            "Please enter date in DD-MM-YYYY format.\n\nExample: 06-10-2026"
-        );
-
-        return;
-
-    }
-
-
-    const date =
-        convertDateToStorage(dateInput);
-
-
-    const paymentPerson =
-        person ||
-        prompt(
-            "Person / Company Name - Optional:"
-        ) ||
-        "";
-
-
-    const purpose =
-        prompt(
-            "Payment Purpose:"
-        );
-
-    if (purpose === null) {
-        return;
-    }
-
-
-    payDebit(
-        amount,
-        date,
-        paymentPerson,
-        purpose
-    );
-
-}
-
-
-</script>
-
-
-<!-- =====================================
-     APP JS
-===================================== -->
-
-<script src="app.js"></script>
-
-
+    <script src="app.js"></script>
 </body>
-
 </html>

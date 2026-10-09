@@ -92,10 +92,6 @@ function convertDateToStorage(dateString) {
     return `${year}-${month}-${day}`;
 }
 
-function isValidDateFormat(dateString) {
-    return Boolean(convertDateToStorage(dateString));
-}
-
 function todayStorageDate() {
     const now = new Date();
 
@@ -139,13 +135,11 @@ function addIncome(amount, date, source) {
 
 function addIncomePrompt() {
     const amount = prompt("Enter Income Amount:");
-
     if (amount === null) return;
 
     const dateInput = prompt(
         "Enter Income Date (DD-MM-YYYY):\n\nExample: 09-10-2026"
     );
-
     if (dateInput === null) return;
 
     const date = convertDateToStorage(dateInput);
@@ -156,7 +150,6 @@ function addIncomePrompt() {
     }
 
     const source = prompt("Enter Income Source:");
-
     if (source === null) return;
 
     addIncome(amount, date, source);
@@ -225,7 +218,7 @@ function addExpense(amount, date, allocationType, purpose) {
 
 // ==========================================
 // ADD DEBIT
-// Debit stores ONLY Amount + Date
+// ONLY Amount + Date
 // ==========================================
 
 function addDebit(amount, date) {
@@ -255,6 +248,7 @@ function addDebit(amount, date) {
 
 // ==========================================
 // REBUILD ALL DATA
+// Debit amount reduces outstanding balance
 // ==========================================
 
 function rebuildDataFromTransactions() {
@@ -297,8 +291,9 @@ function rebuildDataFromTransactions() {
             }
         }
 
+        // FIX: Subtract Debit payments, do not add them.
         if (transaction.type === "Debit") {
-            debitOutstanding += amount;
+            debitOutstanding -= amount;
         }
     });
 
@@ -491,8 +486,8 @@ function displayTransactions() {
             `;
         }
 
-        // Purpose is displayed ONLY for Expense.
-        // Debit Due Date, Person and Purpose are not displayed.
+        // Purpose is displayed only for Expense.
+        // Debit details show Amount and Date only.
         if (transaction.type === "Expense" && transaction.purpose) {
             extraInfo += `
                 <div>
@@ -543,13 +538,11 @@ function displayTransactions() {
 
 function addExpensePrompt() {
     const amount = prompt("Enter Expense Amount:");
-
     if (amount === null) return;
 
     const dateInput = prompt(
         "Enter Expense Date (DD-MM-YYYY):\n\nExample: 09-10-2026"
     );
-
     if (dateInput === null) return;
 
     const date = convertDateToStorage(dateInput);
@@ -564,7 +557,6 @@ function addExpensePrompt() {
         "1 = Personal\n2 = Emergency\n3 = Savings\n\n" +
         "Enter 1, 2 or 3:"
     );
-
     if (choice === null) return;
 
     const options = {
@@ -579,7 +571,6 @@ function addExpensePrompt() {
     }
 
     const purpose = prompt("Expense Purpose:");
-
     if (purpose === null) return;
 
     addExpense(amount, date, options[choice], purpose);
@@ -592,13 +583,11 @@ function addExpensePrompt() {
 
 function addDebitPrompt() {
     const amount = prompt("Enter Pay Amount:");
-
     if (amount === null) return;
 
     const dateInput = prompt(
         "Enter Date (DD-MM-YYYY):\n\nExample: 09-10-2026"
     );
-
     if (dateInput === null) return;
 
     const date = convertDateToStorage(dateInput);
@@ -631,7 +620,6 @@ function editTransaction(id) {
         "Enter new amount:",
         transaction.amount
     );
-
     if (amountInput === null) return;
 
     const amount = Number(amountInput);
@@ -645,7 +633,6 @@ function editTransaction(id) {
         "Enter date (DD-MM-YYYY):",
         formatDate(transaction.date)
     );
-
     if (dateInput === null) return;
 
     const date = convertDateToStorage(dateInput);
@@ -660,7 +647,6 @@ function editTransaction(id) {
         transaction.amount = amount;
         transaction.date = date;
 
-        // Remove obsolete fields from older saved Debit records.
         delete transaction.person;
         delete transaction.dueDate;
         delete transaction.purpose;
@@ -690,7 +676,7 @@ function editTransaction(id) {
         delete transaction.purpose;
     }
 
-    // EXPENSE EDIT: Purpose remains.
+    // EXPENSE EDIT: Allocation and Purpose remain.
     if (transaction.type === "Expense") {
         const choice = prompt(
             "Select Expense Allocation:\n\n" +
@@ -744,7 +730,6 @@ function editTransaction(id) {
             "This edit cannot be completed because the selected " +
             "allocation does not have sufficient balance."
         );
-
         return;
     }
 
@@ -793,7 +778,6 @@ function deleteTransaction(id) {
             "This transaction cannot be deleted because " +
             "other transactions depend on it."
         );
-
         return;
     }
 
@@ -841,12 +825,12 @@ function loadData() {
                 ? data.transactions
                 : [];
 
-            // Remove obsolete Debit Payment transactions.
+            // Remove obsolete Debit Payment entries.
             transactions = transactions.filter(
                 t => t.type !== "Debit Payment"
             );
 
-            // Clean old Debit records so only Amount + Date remain.
+            // Remove old Debit fields and old Income Purpose.
             transactions.forEach(transaction => {
                 if (transaction.type === "Debit") {
                     delete transaction.person;

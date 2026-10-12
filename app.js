@@ -821,8 +821,16 @@ function saveData() {
         STORAGE_KEY,
         JSON.stringify(data)
     );
-}
 
+    // Cloud sync only after login and initial data loading.
+    if (cloudSyncReady && currentUser) {
+        clearTimeout(cloudSaveTimer);
+
+        cloudSaveTimer = setTimeout(() => {
+            uploadDataToCloud();
+        }, 1000);
+    }
+}
 // ==========================================
 // LOAD EXISTING DATA
 // ==========================================

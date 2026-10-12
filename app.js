@@ -36,6 +36,11 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_PUBLISHABLE_KEY
 );
 
+let currentUser = null;
+let cloudSyncReady = false;
+let cloudSaveTimer = null;
+let cloudSyncInProgress = false;
+
 // ==========================================
 // HELPERS
 // ==========================================

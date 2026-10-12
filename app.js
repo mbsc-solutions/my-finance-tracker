@@ -37,9 +37,12 @@ const supabaseClient = window.supabase.createClient(
 );
 
 let currentUser = null;
+syncedUserId = null;
 let cloudSyncReady = false;
 let cloudSaveTimer = null;
 let cloudSyncInProgress = false;
+let activeSyncPromise = null;
+let syncedUserId = null;
 
 // ==========================================
 // HELPERS
@@ -969,6 +972,29 @@ function showFinanceApp(user) {
     if (emailElement) emailElement.textContent = user.email || "";
 }
 
+
+function startUserSync(user) {
+    if (activeSyncPromise) {
+        return activeSyncPromise;
+    }
+
+    if (syncedUserId === user.id && cloudSyncReady) {
+        return Promise.resolve();
+    }
+
+    activeSyncPromise = syncUserData(user)
+        .then(() => {
+            if (cloudSyncReady) {
+                syncedUserId = user.id;
+            }
+        })
+        .finally(() => {
+            activeSyncPromise = null;
+        });
+
+    return activeSyncPromise;
+}
+
 async function syncUserData(user) {
     cloudSyncReady = false;
     currentUser = user;
@@ -1126,7 +1152,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             // Avoid doing async Supabase work inside the auth callback.
             setTimeout(() => {
-                syncUserData(session.user);
+                startUserSync(session.user);
             }, 0);
         } else {
             showLoginScreen();
@@ -1143,7 +1169,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (data.session?.user) {
         showFinanceApp(data.session.user);
-        await syncUserData(data.session.user);
+        await startUserSync(data.session.user);
     } else {
         showLoginScreen();
     }

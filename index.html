@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,139 +84,208 @@
         .transfer-table td {
             vertical-align: middle;
         }
+
+        .login-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+        }
     </style>
 </head>
 
 <body>
-    <div class="app-header">
-        <h2>My Finance Tracker</h2>
-        <p class="mb-0">Income • Expenses • Debit • Savings</p>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="container py-5" style="max-width:450px;">
+        <div class="card login-card p-4">
+            <h2 class="text-center mb-2">My Finance Tracker</h2>
+            <p class="text-center text-muted mb-4">
+                Sign in to access your finance records
+            </p>
+
+            <form id="loginForm">
+                <label for="loginEmail" class="form-label">Email</label>
+                <input
+                    type="email"
+                    id="loginEmail"
+                    class="form-control mb-3"
+                    placeholder="Enter your email"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="loginPassword" class="form-label">Password</label>
+                <input
+                    type="password"
+                    id="loginPassword"
+                    class="form-control mb-3"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="btn btn-primary w-100 action-btn"
+                >
+                    Login
+                </button>
+
+                <p
+                    id="loginMessage"
+                    class="mt-3 mb-0 text-danger"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+            </form>
+        </div>
     </div>
 
-    <div class="container py-4">
+    <!-- FINANCE APP: SHOWN AFTER LOGIN -->
+    <div id="financeApp" style="display:none;">
 
-        <!-- DASHBOARD -->
-        <h4 class="section-title">Dashboard</h4>
-
-        <div class="row g-3">
-            <div class="col-6 col-lg-3">
-                <div class="dashboard-card">
-                    <h6>Total Income</h6>
-                    <div id="totalIncome" class="amount income">₹0.00</div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="dashboard-card">
-                    <h6>Total Expenses</h6>
-                    <div id="totalExpenses" class="amount expense">₹0.00</div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="dashboard-card">
-                    <h6>Debit Outstanding</h6>
-                    <div id="debitOutstanding" class="amount debit">₹22,50,000.00</div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="dashboard-card">
-                    <h6>Available Balance</h6>
-                    <div id="availableBalance" class="amount balance">₹0.00</div>
-                </div>
-            </div>
+        <div class="app-header">
+            <h2>My Finance Tracker</h2>
+            <p class="mb-0">Income • Expenses • Debit • Savings</p>
         </div>
 
-        <!-- ACTION BUTTONS -->
-        <div class="row g-3 mt-4">
-            <div class="col-6 col-md-4">
-                <button class="btn btn-success w-100 action-btn"
-                        onclick="addIncomePrompt()">+ Income</button>
+        <div class="container py-4">
+
+            <!-- DASHBOARD -->
+            <h4 class="section-title">Dashboard</h4>
+
+            <div class="row g-3">
+                <div class="col-6 col-lg-3">
+                    <div class="dashboard-card">
+                        <h6>Total Income</h6>
+                        <div id="totalIncome" class="amount income">₹0.00</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <div class="dashboard-card">
+                        <h6>Total Expenses</h6>
+                        <div id="totalExpenses" class="amount expense">₹0.00</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <div class="dashboard-card">
+                        <h6>Debit Outstanding</h6>
+                        <div id="debitOutstanding" class="amount debit">₹22,50,000.00</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <div class="dashboard-card">
+                        <h6>Available Balance</h6>
+                        <div id="availableBalance" class="amount balance">₹0.00</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="col-6 col-md-4">
-                <button class="btn btn-danger w-100 action-btn"
-                        onclick="addExpensePrompt()">+ Expense</button>
+            <!-- ACTION BUTTONS -->
+            <div class="row g-3 mt-4">
+                <div class="col-6 col-md-4">
+                    <button
+                        class="btn btn-success w-100 action-btn"
+                        onclick="addIncomePrompt()"
+                    >+ Income</button>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <button
+                        class="btn btn-danger w-100 action-btn"
+                        onclick="addExpensePrompt()"
+                    >+ Expense</button>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <button
+                        class="btn btn-warning w-100 action-btn"
+                        onclick="addDebitPrompt()"
+                    >+ Debit</button>
+                </div>
             </div>
 
-            <div class="col-12 col-md-4">
-                <button class="btn btn-warning w-100 action-btn"
-                        onclick="addDebitPrompt()">+ Debit</button>
+            <!-- INCOME ALLOCATION -->
+            <h4 class="section-title mt-5">Income Allocation</h4>
+
+            <div class="row g-3">
+                <div class="col-6 col-lg-4">
+                    <div class="allocation-card">
+                        <strong>Personal — AXIS</strong>
+                        <div class="text-muted">30%</div>
+                        <h5 id="personalAmount" class="mt-2">₹0.00</h5>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-4">
+                    <div class="allocation-card">
+                        <strong>Emergency — IPPB</strong>
+                        <div class="text-muted">20%</div>
+                        <h5 id="emergencyAmount" class="mt-2">₹0.00</h5>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-4">
+                    <div class="allocation-card">
+                        <strong>Savings — SBI</strong>
+                        <div class="text-muted">20%</div>
+                        <h5 id="savingsAmount" class="mt-2">₹0.00</h5>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-4">
+                    <div class="allocation-card">
+                        <strong>PPF — Postal SB</strong>
+                        <div class="text-muted">20%</div>
+                        <h5 id="ppfAmount" class="mt-2">₹0.00</h5>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-4">
+                    <div class="allocation-card">
+                        <strong>Jar</strong>
+                        <div class="text-muted">10%</div>
+                        <h5 id="jarAmount" class="mt-2">₹0.00</h5>
+                    </div>
+                </div>
             </div>
+
+            <!-- DAILY INCOME TRANSFER -->
+            <h4 class="section-title mt-5">
+                Today's Income Transfer Details
+            </h4>
+
+            <div class="allocation-card">
+                <label for="transferDate" class="form-label">
+                    Select Income Date
+                </label>
+
+                <input
+                    type="date"
+                    id="transferDate"
+                    class="form-control mb-3"
+                    onchange="displayDailyTransfers()"
+                >
+
+                <div id="dailyTransferDetails"></div>
+            </div>
+
+            <!-- TRANSACTION HISTORY -->
+            <h4 class="section-title mt-5">Transaction History</h4>
+
+            <div id="transactionHistory">
+                <p class="text-muted">No transactions yet.</p>
+            </div>
+
         </div>
-
-        <!-- INCOME ALLOCATION TOTAL BALANCES -->
-        <h4 class="section-title mt-5">Income Allocation</h4>
-
-        <div class="row g-3">
-            <div class="col-6 col-lg-4">
-                <div class="allocation-card">
-                    <strong>Personal — AXIS</strong>
-                    <div class="text-muted">30%</div>
-                    <h5 id="personalAmount" class="mt-2">₹0.00</h5>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-4">
-                <div class="allocation-card">
-                    <strong>Emergency — IPPB</strong>
-                    <div class="text-muted">20%</div>
-                    <h5 id="emergencyAmount" class="mt-2">₹0.00</h5>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-4">
-                <div class="allocation-card">
-                    <strong>Savings — SBI</strong>
-                    <div class="text-muted">20%</div>
-                    <h5 id="savingsAmount" class="mt-2">₹0.00</h5>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-4">
-                <div class="allocation-card">
-                    <strong>PPF — Postal SB</strong>
-                    <div class="text-muted">20%</div>
-                    <h5 id="ppfAmount" class="mt-2">₹0.00</h5>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-4">
-                <div class="allocation-card">
-                    <strong>Jar</strong>
-                    <div class="text-muted">10%</div>
-                    <h5 id="jarAmount" class="mt-2">₹0.00</h5>
-                </div>
-            </div>
-        </div>
-
-        <!-- DAILY INCOME TRANSFER -->
-        <h4 class="section-title mt-5">Today's Income Transfer Details</h4>
-
-        <div class="allocation-card">
-            <label for="transferDate" class="form-label">
-                Select Income Date
-            </label>
-
-            <input type="date"
-                   id="transferDate"
-                   class="form-control mb-3"
-                   onchange="displayDailyTransfers()">
-
-            <div id="dailyTransferDetails"></div>
-        </div>
-
-        <!-- TRANSACTION HISTORY -->
-        <h4 class="section-title mt-5">Transaction History</h4>
-        <div id="transactionHistory">
-            <p class="text-muted">No transactions yet.</p>
-        </div>
-
     </div>
 
-    
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+
 </body>
 </html>

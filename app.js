@@ -28,7 +28,7 @@ let debitOutstanding = DEFAULT_DEBIT;
 
 const STORAGE_KEY = "myFinanceTrackerData";
 
-const SUPABASE_URL = "https://nmtvjtphkcsphzxcbzow.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://nmtvjtphkcsphzxcbzow.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Kt2b90zmSPF1H2LPqDE2gw_J2TFxyJ1";
 
 const supabaseClient = window.supabase.createClient(

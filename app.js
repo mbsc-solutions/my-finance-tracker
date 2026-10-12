@@ -37,7 +37,6 @@ const supabaseClient = window.supabase.createClient(
 );
 
 let currentUser = null;
-syncedUserId = null;
 let cloudSyncReady = false;
 let cloudSaveTimer = null;
 let cloudSyncInProgress = false;

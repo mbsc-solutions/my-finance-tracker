@@ -38,6 +38,20 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Align Kotlin library versions
+        run: |
+          cat >> apk-project/android/build.gradle <<'EOF'
+          allprojects {
+            configurations.all {
+              resolutionStrategy.eachDependency { details ->
+                if (details.requested.group == 'org.jetbrains.kotlin') {
+                  details.useVersion '1.8.22'
+                }
+              }
+            }
+          }
+          EOF
+          
       - name: Build APK
         run: |
           cd apk-project/android

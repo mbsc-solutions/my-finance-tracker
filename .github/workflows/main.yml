@@ -1,11 +1,15 @@
 
 name: Build Finance Tracker APK
 
+
 on:
   workflow_dispatch:
   push:
     paths:
+      - 'index.html'
+      - 'app.js'
       - '.github/workflows/main.yml'
+
 
 jobs:
   build:

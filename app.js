@@ -879,7 +879,197 @@ function loadData() {
 // START APP
 // ==========================================
 
-document.addEventListener("DOMContentLoaded", function () {
+async function uploadDataToCloud() {
+    if (!currentUser || !cloudSyncReady) return;
+    if (cloudSyncInProgress) return;
+
+    cloudSyncInProgress = true;
+
+    try {
+        const rawData = localStorage.getItem(STORAGE_KEY);
+        const data = rawData ? JSON.parse(rawData) : {
+            transactions: []
+        };
+
+        const { error } = await supabaseClient
+            .from("finance_data")
+            .upsert({
+                user_id: currentUser.id,
+                data: data,
+                updated_at: new Date().toISOString()
+            }, {
+                onConflict: "user_id"
+            });
+
+        if (error) throw error;
+
+        console.log("Cloud backup successful.");
+        setSyncStatus("Cloud backup complete");
+    } catch (error) {
+        console.error("Cloud backup failed:", error);
+        setSyncStatus("Backup failed — check internet");
+    } finally {
+        cloudSyncInProgress = false;
+    }
+}
+
+function setSyncStatus(message) {
+    const status = document.getElementById("cloudSyncStatus");
+    if (status) status.textContent = message;
+}
+
+function showFinanceApp(user) {
+    currentUser = user;
+
+    const loginScreen = document.getElementById("loginScreen");
+    const financeApp = document.getElementById("financeApp");
+
+    if (loginScreen) loginScreen.style.display = "none";
+    if (financeApp) financeApp.style.display = "block";
+
+    let accountBar = document.getElementById("financeAccountBar");
+
+    if (!accountBar && financeApp) {
+        accountBar = document.createElement("div");
+        accountBar.id = "financeAccountBar";
+        accountBar.className =
+            "d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 mb-3 border rounded";
+
+        accountBar.innerHTML = `
+            <div>
+                <strong>Account:</strong>
+                <span id="financeUserEmail"></span>
+                <div id="cloudSyncStatus" class="small text-muted">
+                    Checking backup...
+                </div>
+            </div>
+            <button id="financeLogoutButton" class="btn btn-outline-danger btn-sm">
+                Logout
+            </button>
+        `;
+
+        financeApp.prepend(accountBar);
+
+        document.getElementById("financeLogoutButton")
+            .addEventListener("click", async () => {
+                const confirmed = confirm("Do you want to logout?");
+                if (!confirmed) return;
+
+                cloudSyncReady = false;
+
+                const { error } = await supabaseClient.auth.signOut();
+
+                if (error) {
+                    alert("Logout failed: " + error.message);
+                }
+            });
+    }
+
+    const emailElement = document.getElementById("financeUserEmail");
+    if (emailElement) emailElement.textContent = user.email || "";
+}
+
+async function syncUserData(user) {
+    cloudSyncReady = false;
+    currentUser = user;
+
+    try {
+        setSyncStatus("Checking cloud backup...");
+
+        const { data: cloudRow, error } = await supabaseClient
+            .from("finance_data")
+            .select("data")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        const localRaw = localStorage.getItem(STORAGE_KEY);
+        let localData = null;
+
+        if (localRaw) {
+            try {
+                localData = JSON.parse(localRaw);
+            } catch {
+                localData = null;
+            }
+        }
+
+        const localTransactions =
+            localData && Array.isArray(localData.transactions)
+                ? localData.transactions
+                : [];
+
+        const cloudData =
+            cloudRow && cloudRow.data && typeof cloudRow.data === "object"
+                ? cloudRow.data
+                : null;
+
+        const cloudTransactions =
+            cloudData && Array.isArray(cloudData.transactions)
+                ? cloudData.transactions
+                : [];
+
+        if (cloudData && cloudTransactions.length > 0 &&
+            localTransactions.length > 0) {
+
+            const useCloud = confirm(
+                "Local and Cloud data both exist.\n\n" +
+                "OK = Restore Cloud data to this device\n" +
+                "Cancel = Keep this device's data and back it up to Cloud"
+            );
+
+            if (useCloud) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudData));
+            } else {
+                cloudSyncReady = true;
+                loadData();
+                await uploadDataToCloud();
+                return;
+            }
+
+        } else if (cloudData && cloudTransactions.length > 0) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudData));
+
+        } else if (localTransactions.length > 0) {
+            cloudSyncReady = true;
+            loadData();
+            await uploadDataToCloud();
+            return;
+        }
+
+        loadData();
+        cloudSyncReady = true;
+
+        if (cloudData && cloudTransactions.length > 0) {
+            setSyncStatus("Cloud data restored");
+        } else {
+            await uploadDataToCloud();
+        }
+
+    } catch (error) {
+        console.error("Cloud sync failed:", error);
+        cloudSyncReady = false;
+        setSyncStatus("Cloud sync failed: " + error.message);
+        alert(
+            "Cloud sync failed.\nYour local data has not been intentionally deleted.\n\n" +
+            error.message
+        );
+    }
+}
+
+function showLoginScreen() {
+    cloudSyncReady = false;
+    currentUser = null;
+
+    const loginScreen = document.getElementById("loginScreen");
+    const financeApp = document.getElementById("financeApp");
+
+    if (loginScreen) loginScreen.style.display = "block";
+    if (financeApp) financeApp.style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
     const dateInput = document.getElementById("transferDate");
 
     if (dateInput) {
@@ -887,5 +1077,75 @@ document.addEventListener("DOMContentLoaded", function () {
         dateInput.addEventListener("change", displayDailyTransfers);
     }
 
+    // Keep local data available while login is checked.
     loadData();
+
+    const loginForm = document.getElementById("loginForm");
+    const loginMessage = document.getElementById("loginMessage");
+    const loginButton = document.getElementById("loginButton");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("loginEmail")?.value.trim();
+            const password = document.getElementById("loginPassword")?.value;
+
+            if (!email || !password) {
+                if (loginMessage) {
+                    loginMessage.textContent = "Enter email and password.";
+                }
+                return;
+            }
+
+            if (loginButton) loginButton.disabled = true;
+            if (loginMessage) loginMessage.textContent = "Logging in...";
+
+            try {
+                const { error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                if (loginMessage) loginMessage.textContent = "";
+            } catch (error) {
+                if (loginMessage) {
+                    loginMessage.textContent = error.message;
+                }
+            } finally {
+                if (loginButton) loginButton.disabled = false;
+            }
+        });
+    }
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+            showFinanceApp(session.user);
+
+            // Avoid doing async Supabase work inside the auth callback.
+            setTimeout(() => {
+                syncUserData(session.user);
+            }, 0);
+        } else {
+            showLoginScreen();
+        }
+    });
+
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) {
+        console.error("Session check failed:", error);
+        showLoginScreen();
+        return;
+    }
+
+    if (data.session?.user) {
+        showFinanceApp(data.session.user);
+        await syncUserData(data.session.user);
+    } else {
+        showLoginScreen();
+    }
 });
+

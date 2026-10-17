@@ -1173,4 +1173,286 @@ document.addEventListener("DOMContentLoaded", async function () {
         showLoginScreen();
     }
 });
+// ==========================================
+// INTEREST MANAGEMENT
+// ==========================================
 
+let interestLoans = [];
+
+function addInterestLoan() {
+    const name = prompt("Borrower Name:");
+    if (name === null || !name.trim()) return;
+
+    const phone = prompt("Phone Number (Optional):") || "";
+
+    const principal = Number(prompt("Principal Amount (INR):"));
+    if (!Number.isFinite(principal) || principal <= 0) {
+        alert("Enter a valid principal amount.");
+        return;
+    }
+
+    const rate = Number(prompt("Interest Rate (%):"));
+    if (!Number.isFinite(rate) || rate < 0) {
+        alert("Enter a valid interest rate.");
+        return;
+    }
+
+    const periodType = prompt(
+        "Select Interest Period:\n1 = Daily\n2 = Monthly\n3 = Yearly"
+    );
+
+    const periodOptions = {
+        "1": "daily",
+        "2": "monthly",
+        "3": "yearly"
+    };
+
+    if (!periodOptions[periodType]) {
+        alert("Enter 1, 2, or 3.");
+        return;
+    }
+
+    const dateInput = prompt("Loan Date (DD-MM-YYYY):");
+    if (dateInput === null) return;
+
+    const date = convertDateToStorage(dateInput);
+
+    if (!date) {
+        alert("Enter a valid date in DD-MM-YYYY format.");
+        return;
+    }
+
+    const days = Number(prompt("Number of Interest Days:"));
+
+    if (!Number.isFinite(days) || days <= 0) {
+        alert("Enter a valid number of days.");
+        return;
+    }
+
+    const divisor = {
+        daily: 1,
+        monthly: 30,
+        yearly: 365
+    };
+
+    const interest =
+        principal * (rate / 100) *
+        (days / divisor[periodOptions[periodType]]);
+
+    interestLoans.push({
+        id: Date.now(),
+        name: name.trim(),
+        phone: phone.trim(),
+        principal,
+        rate,
+        periodType: periodOptions[periodType],
+        date,
+        days,
+        interest,
+        principalPaid: 0,
+        interestPaid: 0,
+        repayments: []
+    });
+
+    saveInterestLoans();
+    displayInterestLoans();
+}
+
+function saveInterestLoans() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+
+    data.interestLoans = interestLoans;
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+    if (cloudSyncReady && currentUser) {
+        clearTimeout(cloudSaveTimer);
+
+        cloudSaveTimer = setTimeout(() => {
+            uploadDataToCloud();
+        }, 1000);
+    }
+}
+
+function loadInterestLoans() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const data = raw ? JSON.parse(raw) : {};
+
+        interestLoans = Array.isArray(data.interestLoans)
+            ? data.interestLoans
+            : [];
+
+        interestLoans.forEach(loan => {
+            if (!Array.isArray(loan.repayments)) {
+                loan.repayments = [];
+            }
+        });
+    } catch (error) {
+        console.error("Interest data loading error:", error);
+        interestLoans = [];
+    }
+
+    displayInterestLoans();
+}
+
+function displayInterestLoans() {
+    const container = document.getElementById("interestLoanList");
+    if (!container) return;
+
+    if (interestLoans.length === 0) {
+        container.innerHTML =
+            '<p class="text-muted">No loan records yet.</p>';
+        return;
+    }
+
+    container.innerHTML = interestLoans.map(loan => {
+        const principalRemaining = Math.max(
+            0,
+            Number(loan.principal) - Number(loan.principalPaid || 0)
+        );
+
+        const interestRemaining = Math.max(
+            0,
+            Number(loan.interest) - Number(loan.interestPaid || 0)
+        );
+
+        return `
+            <div class="transaction-item">
+                <h5>${escapeHTML(loan.name)}</h5>
+                <div>Phone: ${escapeHTML(loan.phone || "-")}</div>
+                <div>Loan Date: ${escapeHTML(formatDate(loan.date))}</div>
+                <div>Principal: ${money(loan.principal)}</div>
+                <div>Interest Rate: ${loan.rate}% ${escapeHTML(loan.periodType)}</div>
+                <div>Interest: ${money(loan.interest)}</div>
+                <div>Principal Paid: ${money(loan.principalPaid || 0)}</div>
+                <div>Interest Paid: ${money(loan.interestPaid || 0)}</div>
+                <div>Remaining Principal: ${money(principalRemaining)}</div>
+                <div>Remaining Interest: ${money(interestRemaining)}</div>
+                <strong>Total Outstanding: ${money(principalRemaining + interestRemaining)}</strong>
+
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                    <button class="btn btn-success btn-sm"
+                        onclick="recordInterestRepayment(${Number(loan.id)})">
+                        Record Payment
+                    </button>
+
+                    <button class="btn btn-outline-primary btn-sm"
+                        onclick="viewInterestRepayments(${Number(loan.id)})">
+                        Payment History
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function recordInterestRepayment(id) {
+    const loan = interestLoans.find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if (!loan) return;
+
+    const principalRemaining = Math.max(
+        0,
+        Number(loan.principal) - Number(loan.principalPaid || 0)
+    );
+
+    const interestRemaining = Math.max(
+        0,
+        Number(loan.interest) - Number(loan.interestPaid || 0)
+    );
+
+    const principalInput = prompt(
+        "Principal Payment Amount:",
+        "0"
+    );
+
+    if (principalInput === null) return;
+
+    const principalPayment = Number(principalInput);
+
+    if (
+        !Number.isFinite(principalPayment) ||
+        principalPayment < 0 ||
+        principalPayment > principalRemaining
+    ) {
+        alert("Enter a valid principal payment amount.");
+        return;
+    }
+
+    const interestInput = prompt(
+        "Interest Payment Amount:",
+        "0"
+    );
+
+    if (interestInput === null) return;
+
+    const interestPayment = Number(interestInput);
+
+    if (
+        !Number.isFinite(interestPayment) ||
+        interestPayment < 0 ||
+        interestPayment > interestRemaining
+    ) {
+        alert("Enter a valid interest payment amount.");
+        return;
+    }
+
+    if (principalPayment === 0 && interestPayment === 0) {
+        alert("Enter at least one payment amount.");
+        return;
+    }
+
+    const paymentDateInput = prompt(
+        "Payment Date (DD-MM-YYYY):"
+    );
+
+    if (paymentDateInput === null) return;
+
+    const paymentDate = convertDateToStorage(paymentDateInput);
+
+    if (!paymentDate) {
+        alert("Enter a valid payment date.");
+        return;
+    }
+
+    loan.principalPaid =
+        Number(loan.principalPaid || 0) + principalPayment;
+
+    loan.interestPaid =
+        Number(loan.interestPaid || 0) + interestPayment;
+
+    loan.repayments.push({
+        id: Date.now(),
+        date: paymentDate,
+        principal: principalPayment,
+        interest: interestPayment
+    });
+
+    saveInterestLoans();
+    displayInterestLoans();
+}
+
+function viewInterestRepayments(id) {
+    const loan = interestLoans.find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if (!loan) return;
+
+    if (!loan.repayments || loan.repayments.length === 0) {
+        alert("No repayment history available.");
+        return;
+    }
+
+    const history = loan.repayments.map(payment =>
+        `${formatDate(payment.date)} | Principal: ${money(payment.principal)} | Interest: ${money(payment.interest)}`
+    ).join("\n");
+
+    alert(
+        "Repayment History - " + loan.name + "\n\n" + history
+    );
+}
